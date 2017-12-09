@@ -17,19 +17,23 @@ $port = 64738;
 //Setup the TCP/UDP Socket
 if (($sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP)) === false) {
     echo "socket_create() failed: reason: " . socket_strerror(socket_last_error()) . "\n";
+    die();
 }
 
 if (socket_bind($sock, $address, $port) === false) {
     echo "socket_bind() failed: reason: " . socket_strerror(socket_last_error($sock)) . "\n";
+    die();
 }
 
 if (socket_listen($sock, 5) === false) {
     echo "socket_listen() failed: reason: " . socket_strerror(socket_last_error($sock)) . "\n";
+    die();
 }
 
 //Setup the websocket
 if (($client = new Client("ws://$address:8080")) === false) {
     echo "websocket create failed\n";
+    die();
 }
 
 do {
@@ -38,8 +42,7 @@ do {
         break;
     }
     /* Send instructions. */
-    $msg = "\nWelcome to the PHP Test Server. \n" .
-        "To quit, type 'quit'. To shut down the server type 'shutdown'.\n";
+    $msg = "\nConnected to server.\n";
     socket_write($msgsock, $msg, strlen($msg));
 
     do {
@@ -53,12 +56,8 @@ do {
         if ($buf == 'quit') {
             break;
         }
-        if ($buf == 'shutdown') {
-            socket_close($msgsock);
-            break 2;
-        }
-        $talkback = "PHP: You said '$buf'.\n";
-        socket_write($msgsock, $talkback, strlen($talkback));
+
+        /* Write the data to the terminal and send it to the websocket */
         echo "$buf\n";
         $client->send($buf);
     } while (true);
