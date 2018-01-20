@@ -20,6 +20,10 @@ function logToDatabase($data) {
 
   //Turn the JSON string into an object with the attributes from the JSON
   var_dump($data);
+
+  // Get Car Id from Android Id
+  $cId = AndroidToCar($mysqli, $data->AndroidId);
+
   //INSERT into DB
   $stmt = $mysqli->prepare("INSERT INTO SensorData ".
     "(BatteryVoltage,CarId,CoolantTemperature,GroundSpeed,Id,".
@@ -32,7 +36,7 @@ function logToDatabase($data) {
     $intakeTemperature, $systemCurrent, $latitude, $longitude);
 
   $id = $data->Id;
-  //$carId = $data->CarId; write a query to get the car ID from their android ID
+  $carId = cId;
   $logTime = $data->LogTime;
   $wheelRpm = $data->WheelRpm;
   $groundSpeed = $data->GroundSpeed;
@@ -59,14 +63,13 @@ function getNextRunNumber($androidId) {
   $mysqli = new mysqli('localhost', getDatabaseUser(), getDatabasePassword(), 
     getDatabaseServerName());
 
+  $carId = AndroidToCar($mysqli, $androidId);
+
   $sql = "SELECT MAX(RunNumber) ".
          "FROM SensorData ".
-         "WHERE CarId = (SELECT CarId ".
-                        "FROM CarTablet ".
-                        "WHERE AndroidId = ?);";
+         "WHERE CarId = ?;";
   $stmt = mysqli->prepare($sql);
-  $stmt->bind_param('s', $aId);
-  $aId = $androidId;
+  $stmt->bind_param('s', $carIdd);
 
   $stmt->execute();
 
@@ -77,5 +80,20 @@ function getNextRunNumber($androidId) {
   $mysqli->close();
 
   return $nextRunNumber;
+}
+
+function AndroidToCar($mysqli, $androidId) {
+  $sql = "SELECT CarId ".
+         "FROM CarTablet ".
+         "WHERE AndroidId = ?;";
+  $stmt = mysqli->prepare($sql);
+  $stmt->bind_param('s', $aId);
+  $aId = $androidId;
+
+  $stmt->execute();
+  $stmt->bind_result($carId);
+  $stmt->close();
+
+  return $carId;
 }
 ?>
