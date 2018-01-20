@@ -1,37 +1,81 @@
 #!/usr/local/bin/php -q
 <?php
 require_once(dirname(__FILE__) . '/vendor/autoload.php');
+require_once(dirname(__FILE__) . '/API/ConnectionSettings.php');
 use WebSocket\Client;
 error_reporting(E_ALL);
 
-//Connect to the DB
-mysql_connect("localhost", "root", "$argv[1]")
-  or
-die("could not connect");
-mysql_select_db("HEEV");
 
-//Setup the websocket
-if (($client = new Client("ws://$address:8080")) === false) {
-    echo "websocket create failed\n";
-    die();
+
+function logToDatabase($data) {
+  //Connect to the DB
+  $mysqli = new mysqli('localhost', getDatabaseUser(), getDatabasePassword(), 
+    getDatabaseServerName());
+
+  //Check connection
+  if (mysqli_connect_errno()) {
+    printf("Connect failed: %s\n", mysqli_connect_error());
+    exit();
+  }
+
+  //Turn the JSON string into an object with the attributes from the JSON
+  var_dump($data);
+  //INSERT into DB
+  $stmt = $mysqli->prepare("INSERT INTO SensorData ".
+    "(BatteryVoltage,CarId,CoolantTemperature,GroundSpeed,Id,".
+    "IntakeTemperature,LKillSwitch,LogTime,MKillSwitch,RKillSwitch,".
+    "SecondaryBatteryVoltage,SystemCurrent,WheelRpm,WindSpeed) ".
+    "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+  $stmt->bind_param('iisddddiiiddddd', $id, $carId, $logTime, $wheelRpm,
+    $groundSpeed, $windSpeed, $batteryVoltage, $lKillSwitch, $mKillSwitch,
+    $rKillSwitch, $secondaryBatteryVoltage, $coolantTemperature,
+    $intakeTemperature, $systemCurrent, $latitude, $longitude);
+
+  $id = $data->Id;
+  //$carId = $data->CarId; write a query to get the car ID from their android ID
+  $logTime = $data->LogTime;
+  $wheelRpm = $data->WheelRpm;
+  $groundSpeed = $data->GroundSpeed;
+  $windSpeed = $data->WindSpeed;
+  $batteryVoltage = $data->BatteryVoltage;
+  $lKillSwitch = $data->LKillSwitch;
+  $mKillSwitch = $data->MKillSwitch;
+  $rKillSwitch = $data->RKillSwitch;
+  $secondaryBatteryVoltage = $data->SecondaryBatteryVoltage;
+  $coolantTemperature = $data->CoolantTemperature;
+  $intakeTemperature = $data->IntakeTemperature;
+  $systemCurrent = $data->SystemCurrent;
+  $latitude = $data->Latitude;
+  $longitude = $data->Longitude;
+
+  $stmt->execute();
+
+  printf("%d Row inserted.\n", $stmt->affected_rows);
+  $stmt->close();
+  $mysqli->close();
 }
-do {
-    //Grab the JSON data from the websocket
-    $data = json_decode($client->receive());
-    //Turn the JSON string into an object with the attributes from the JSON
-    var_dump($data);
-    //INSERT into DB
-    $result = mysql_query("INSERT INTO SensorData ".
-      "(BatteryVoltage,CarId,CoolantTemperature,GroundSpeed,Id,".
-      "IntakeTemperature,LKillSwitch,LogTime,MKillSwitch,RKillSwitch,".
-      "SecondaryBatteryVoltage,SystemCurrent,WheelRpm,WindSpeed) ".
-      "VALUES ".
-      "('$data->BatteryVoltage','$data->CarId','$data->CoolantTemperature',".
-      "'$data->GroundSpeed','$data->Id','$data->IntakeTemperature',".
-      "'$data->LKillSwitch','$data->LogTime','$data->MKillSwitch',".
-      "'$data->RKillSwitch','$data->SecondaryBatteryVoltage',".
-      "'$data->SystemCurrent','$data->WheelRpm','$data->WindSpeed')");
-      //Free the memory used for the result
-      mysql_free_result($result);
-} while (true);
+
+function getNextRunNumber($androidId) {
+  $mysqli = new mysqli('localhost', getDatabaseUser(), getDatabasePassword(), 
+    getDatabaseServerName());
+
+  $sql = "SELECT MAX(RunNumber) ".
+         "FROM SensorData ".
+         "WHERE CarId = (SELECT CarId ".
+                        "FROM CarTablet ".
+                        "WHERE AndroidId = ?);";
+  $stmt = mysqli->prepare($sql);
+  $stmt->bind_param('s', $aId);
+  $aId = $androidId;
+
+  $stmt->execute();
+
+  $stmt->bind_result($curRunNumber);
+  $nextRunNumber = $curRunNumber + 1;
+
+  $stmt->close();
+  $mysqli->close();
+
+  return $nextRunNumber;
+}
 ?>

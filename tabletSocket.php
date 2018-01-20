@@ -57,9 +57,23 @@ do {
             break;
         }
 
-        /* Write the data to the terminal and send it to the websocket */
+        // Write the data to the terminal
         echo "$buf\n";
-        $client->send($buf);
+        $json = json_decode($buf);
+
+        switch ($json->MessageType) {
+          case 'Log':
+            $client->send($buf);
+            logToDatabase($json);
+            break;
+            
+          case 'GetNextRunNumber':
+            $nextRunNum = getNextRunNumber($json->AndroidId);
+            // Send next run number
+            socket_write($msgsock, strval($nextRunNum), len(strval($nextRunNum))); 
+            break;
+        }
+
     } while (true);
     socket_close($msgsock);
 } while (true);
