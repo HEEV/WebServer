@@ -5,7 +5,7 @@ use WebSocket\Client;
 error_reporting(E_ALL);
 
 //Connect to the DB
-mysql_connect("localhost", "root", "brainwasherfarm")
+mysql_connect("localhost", "root", "$argv[1]")
   or
 die("could not connect");
 mysql_select_db("HEEV");
