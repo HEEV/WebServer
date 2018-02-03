@@ -74,7 +74,12 @@ function getNextRunNumber($androidId) {
   $stmt->execute();
 
   $stmt->bind_result($curRunNumber);
-  $nextRunNumber = $curRunNumber + 1;
+
+  if (!isset($curRunNumber)) {
+    $curRunNumber = 0;
+  } else {
+    $nextRunNumber = $curRunNumber + 1;
+  }
 
   $stmt->close();
   $mysqli->close();
