@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script src="getExcel.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <div>Select the race you want to view and then click "Get Excel File".</div>
+    <form action="API/getRace.php" method="post">
+      <select id="RaceId">
+        <option value="">Loading...</option>
+      </select>
+      <input type="submit" id="GetExcel">Get Excel File</input>
+    </form>
+  </body>
+</html>
