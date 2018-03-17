@@ -1,6 +1,7 @@
 #!/usr/local/bin/php -q
 <?php
 require_once(dirname(__FILE__) . '/vendor/autoload.php');
+require_once(dirname(__FILE__) . '/databaseSocket.php');
 use WebSocket\Client;
 error_reporting(E_ALL);
 
@@ -42,20 +43,37 @@ do {
         break;
     }
     /* Send instructions. */
-    $msg = "\nConnected to server.\n";
+    echo "New connection!\n";
+    $msg = "Connected to server.\n";
     socket_write($msgsock, $msg, strlen($msg));
-
+    
     do {
-        if (false === ($buf = socket_read($msgsock, 2048, PHP_NORMAL_READ))) {
+        if (!($ibuf = socket_read($msgsock, 2, PHP_BINARY_READ))) {
+            echo "initial socket_read() failed: reason: " . socket_strerror(socket_last_error($msgsock)) . "\n";
+            break;
+        }
+        if (!($lbuf = socket_read($msgsock, 4, PHP_BINARY_READ))) {
+            echo "initial socket_read() failed: reason: " . socket_strerror(socket_last_error($msgsock)) . "\n";
+            break;
+        }
+        if (!$lbuf = trim($lbuf)) {
+            continue;
+        }
+        if ($lbuf == 'quit') {
+            break;
+        }
+        echo "$lbuf\n";
+
+        if (!($buf = socket_read($msgsock, (int)$lbuf, PHP_BINARY_READ))) {
             echo "socket_read() failed: reason: " . socket_strerror(socket_last_error($msgsock)) . "\n";
             break;
         }
-        if (!$buf = trim($buf)) {
+        /*if (!$buf = trim($buf)) {
             continue;
         }
         if ($buf == 'quit') {
             break;
-        }
+        }*/
 
         // Write the data to the terminal
         echo "$buf\n";
@@ -68,9 +86,10 @@ do {
             break;
             
           case 'GetNextRunNumber':
-            $nextRunNum = getNextRunNumber($json->AndroidId);
+            $nextRunNum = getNextRunNumber($json->AndroidId)."\n";
+            echo "$nextRunNum\n";
             // Send next run number
-            socket_write($msgsock, strval($nextRunNum), len(strval($nextRunNum))); 
+            socket_write($msgsock, $nextRunNum, strlen($nextRunNum)); 
             break;
         }
 

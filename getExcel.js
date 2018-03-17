@@ -23,7 +23,7 @@ $(function() {
   });*/
 
   $.ajax({
-    url: 'API/ajaxGetRaceIds.php',
+    url: 'API/GetRunIds.php',
     type: 'get',
     success: function(data, status) {
       if(status == 200) {
@@ -41,11 +41,11 @@ $(function() {
     }
   }); //end ajax call
 
-  $('#GetExcel').disable();
+  $('#GetExcel').prop('disabled', true);
 
   $('#RaceId').on('change', function(e) {
     if (e.text == 'Please Select') {
-      $('#GetExcel').disable();
+      $('#GetExcel').('disable', true);
     }
     else {
       $('#GetExcel').enable();

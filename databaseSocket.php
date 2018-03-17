@@ -64,22 +64,25 @@ function getNextRunNumber($androidId) {
     getDatabaseServerName());
 
   $carId = AndroidToCar($mysqli, $androidId);
+  echo PHP_EOL . $carId . PHP_EOL;
 
   $sql = "SELECT MAX(RunNumber) ".
          "FROM SensorData ".
          "WHERE CarId = ?;";
-  $stmt = mysqli->prepare($sql);
-  $stmt->bind_param('s', $carIdd);
+  $stmt = $mysqli->prepare($sql);
+  $stmt->bind_param('s', $carId);
 
   $stmt->execute();
 
   $stmt->bind_result($curRunNumber);
+  $stmt->fetch();
+  echo "RunNum: " . $curRunNumber.PHP_EOL;
 
   if (!isset($curRunNumber)) {
     $curRunNumber = 0;
-  } else {
-    $nextRunNumber = $curRunNumber + 1;
   }
+  $nextRunNumber = $curRunNumber + 1;
+  
 
   $stmt->close();
   $mysqli->close();
@@ -91,12 +94,13 @@ function AndroidToCar($mysqli, $androidId) {
   $sql = "SELECT CarId ".
          "FROM CarTablet ".
          "WHERE AndroidId = ?;";
-  $stmt = mysqli->prepare($sql);
+  $stmt = $mysqli->prepare($sql);
   $stmt->bind_param('s', $aId);
   $aId = $androidId;
 
   $stmt->execute();
   $stmt->bind_result($carId);
+  $stmt->fetch();
   $stmt->close();
 
   return $carId;
