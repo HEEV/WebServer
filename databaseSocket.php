@@ -25,17 +25,14 @@ function logToDatabase($data) {
   $cId = AndroidToCar($mysqli, $data->AndroidId);
 
   //INSERT into DB
-  $stmt = $mysqli->prepare("INSERT INTO SensorData ".
-    "(BatteryVoltage,CarId,CoolantTemperature,GroundSpeed,Id,".
-    "IntakeTemperature,LKillSwitch,LogTime,MKillSwitch,RKillSwitch,".
-    "SecondaryBatteryVoltage,SystemCurrent,WheelRpm,WindSpeed) ".
-    "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-  $stmt->bind_param('iisddddiiiddddd', $id, $carId, $logTime, $wheelRpm,
+  $stmt = $mysqli->prepare("INSERT INTO SensorData
+  (CarId, LogTime, WheelRpm, GroundSpeed, WindSpeed, BatteryVoltage, LKillSwitch, MKillSwitch, RKillSwitch, SecondaryBatteryVoltage, CoolantTemperature, IntakeTemperature, SystemCurrent, Latitude, Longitude, RunNumber)
+  VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+  $stmt->bind_param('isddddiiiddddddi', $carId, $logTime, $wheelRpm,
     $groundSpeed, $windSpeed, $batteryVoltage, $lKillSwitch, $mKillSwitch,
     $rKillSwitch, $secondaryBatteryVoltage, $coolantTemperature,
-    $intakeTemperature, $systemCurrent, $latitude, $longitude);
+    $intakeTemperature, $systemCurrent, $latitude, $longitude, $runNumber);
 
-  $id = $data->Id;
   $carId = cId;
   $logTime = $data->LogTime;
   $wheelRpm = $data->WheelRpm;
@@ -51,6 +48,7 @@ function logToDatabase($data) {
   $systemCurrent = $data->SystemCurrent;
   $latitude = $data->Latitude;
   $longitude = $data->Longitude;
+  $runNumber = $data->runNumber;
 
   $stmt->execute();
 
