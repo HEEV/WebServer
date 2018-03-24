@@ -1,4 +1,16 @@
-<!DOCTYPE html>
+<?php
+  session_start();
+  if (!isset($_SESSION['LoggedIn'])) {
+    ?>
+    <form action="API/Login.php" method="post">
+      Username: <input type="text" name="Username"><br/>
+      Password <input type="password" name="Password"><br/>
+      <input type="submit">
+    </form>
+    <?php
+    die();
+  }
+?><!DOCTYPE html>
 <html lang="en">
   <head>
     <style>

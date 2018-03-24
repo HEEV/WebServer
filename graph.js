@@ -1,68 +1,91 @@
-
-window.onload = function () {
-  Highcharts.chart('container', {
-
-    title: {
-      text: 'Solar Employment Growth by Sector, 2010-2016'
-    },
-
-    subtitle: {
-      text: 'Source: thesolarfoundation.com'
-    },
-
-    yAxis: {
+function renderGraph(runNumber) {
+  $.post('./API/GetGraph.php', { runId: runNumber }, function(data) {
+    var arr = JSON.parse(data);
+    console.log(arr);
+    var dataArray = [];
+    $.each(arr, function(index, value) {
+      if (index !== 'LogTime' && index !== 'RunNumber') {
+        dataArray.push({ 
+          name: index,
+          data: value,
+          visible: ((index === 'Id' ||
+                     index === 'CarId' ||
+                     index === 'Latitude' ||
+                     index === 'Longitude'||
+                     index === 'LKillSwitch' ||
+                     index === 'MKillSwitch' ||
+                     index === 'RKillSwitch') ? false : true)
+        });
+      }
+    });
+    var timeArray = [];
+    $.each(arr.LogTime, function(index, value) {
+      timeArray.push(value.substring(11));
+    });
+    Highcharts.chart('container', {
       title: {
-        text: 'Number of Employees'
-      }
-    },
+        text: 'Cedarville Supermileage Run ' + arr.LogTime[0].substring(0, 10) + ' Data'
+      },
 
-    legend: {
-      layout: 'vertical',
-      align: 'right',
-      verticalAlign: 'middle'
-    },
+      xAxis: {
+        categories: timeArray
+      },
 
-    plotOptions: {
-      series: {
-        label: {
-          connectorAllowed: false
-        },
-        pointStart: 2010
-      }
-    },
-
-    series: [
-    {
-      name: 'Installation',
-      data: [43934, 52503, 57177, 69658, 97031, 119931, 137133, 154175]
-    }, {
-      name: 'Manufacturing',
-      data: [24916, 24064, 29742, 29851, 32490, 30282, 38121, 40434]
-    }, {
-      name: 'Sales & Distribution',
-      data: [11744, 17722, 16005, 19771, 20185, 24377, 32147, 39387]
-    }, {
-      name: 'Project Development',
-      data: [null, null, 7988, 12169, 15112, 22452, 34400, 34227]
-    }, {
-      name: 'Other',
-      data: [12908, 5948, 8105, 11248, 8989, 11816, 18274, 18111]
-    }],
-
-    responsive: {
-      rules: [{
-        condition: {
-          maxWidth: 500
-        },
-        chartOptions: {
-          legend: {
-            layout: 'horizontal',
-            align: 'center',
-            verticalAlign: 'bottom'
-          }
+      yAxis: {
+        title: {
+          text: ''
         }
-      }]
-    }
+      },
 
+      legend: {
+        layout: 'vertical',
+        align: 'right',
+        verticalAlign: 'middle'
+      },
+
+      plotOptions: {
+        series: {
+          label: {
+            connectorAllowed: false
+          },
+        }
+      },
+
+      series: dataArray,
+      responsive: {
+        rules: [{
+          condition: {
+            maxWidth: 500
+          },
+          chartOptions: {
+            legend: {
+              layout: 'horizontal',
+              align: 'center',
+              verticalAlign: 'bottom'
+            }
+          }
+        }]
+      }
+    });
   });
 }
+
+$(function() {
+  $.get('./API/GetRunIds.php', function(data) {
+    var arr = JSON.parse(data);
+    console.log(arr);
+    $.each(arr, function(index, value) {
+      $('#RunNum').append(
+        '<option value="' + value.RunId + '">' + value.Car + ' on ' +
+        value.Time.substring(0, 19) + '</option>'
+      );
+    });
+
+    renderGraph($('#RunNum').val());
+  });
+
+
+  $('#RunNum').on('change', function() {
+    renderGraph($(this).val());
+  });
+});

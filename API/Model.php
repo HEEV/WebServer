@@ -29,8 +29,19 @@ class Model
   }
 
   public function GetRunIds() {
-    $sql = 'SELECT DISTINCT RunNumber FROM SensorData ORDER BY RunNumber DESC';
-    return $this->conn->query($sql);
+    $sql = 'SELECT Cars.Name, a.LogTime, a.RunNumber from Cars join (SELECT MIN(SensorData.CarId) as CarId, MIN(SensorData.LogTime) LogTime, SensorData.RunNumber FROM SensorData GROUP BY SensorData.RunNumber) a on a.CarId = Cars.Id';
+    $result = $this->conn->query($sql);
+    $runIds = array();
+
+    while ($row = $result->fetch_assoc()) {
+      $entry = array();
+      $entry['RunId'] = $row['RunNumber'];
+      $entry['Time'] = $row['LogTime'];
+      $entry['Car'] = $row['Name'];
+      $runIds[] = $entry;
+    }
+
+    return $runIds;
   }
 
   public function GetRunData($runId) {

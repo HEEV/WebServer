@@ -1,0 +1,5 @@
+run
+php chat-server.php
+then
+php tabletSocket.php
+everything should work
