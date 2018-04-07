@@ -18,8 +18,22 @@ conn.onmessage = function(e) {
   var data = JSON.parse(e.data);
 //socket.on('push', function(data) {
   //var msg = JSON.parse(JSON.stringify(data));
-  updateMap(data.coordinate.latitude, data.coordinate.longitude);
-  var carspeed = Math.ceil(data.groundSpeed * 10) / 10;
+  $('#AndroidId').text(data.AndroidId);
+  $('#BatteryVoltage').text(data.BatteryVoltage);
+  $('#CoolantTemperature').text(data.CoolantTemperature);
+  $('#GroundSpeed').text(data.GroundSpeed);
+  $('#IntakeTemperature').text(data.IntakeTemperature);
+  $('#LKillSwitch').text(data.LKillSwitch);
+  $('#LogTime').text(data.LogTime);
+  $('#MKillSwitch').text(data.MKillSwitch);
+  $('#RKillSwitch').text(data.RKillSwitch);
+  $('#RunNumber').text(data.RunNumber);
+  $('#SecondaryBatteryVoltage').text(data.SecondaryBatteryVoltage);
+  $('#SystemCurrent').text(data.SystemCurrent);
+  $('#WheelRpm').text(data.WheelRpm);
+  $('#Windspeed').text(data.WindSpeed);
+  updateMap(data.Latitude, data.Longitude);
+  /*var carspeed = Math.ceil(data.groundSpeed * 10) / 10;
   $('#CarName').text(data.carName);
   $('#CarSpeed').text(carspeed);
   $('#AverageSpeed').text(data.averageSpeed);
@@ -29,9 +43,9 @@ conn.onmessage = function(e) {
   $('#LastLapTime').text(data.lastLapTime);
   var seconds = fixTheLittleOnes(Math.floor((data.time/1000)%60));
   var minutes = Math.floor((data.time/1000)/60);
-  $('#TotalTimeElapsed').text(minutes + ":" + seconds);
+  $('#TotalTimeElapsed').text(minutes + ":" + seconds);*/
   console.log(JSON.stringify(data));
-}/*)*/;
+};
 
 function initMap() {
   var car = {lat: 39.746872, lng: -83.813105};

@@ -48,7 +48,7 @@ do {
     socket_write($msgsock, $msg, strlen($msg));
     
     do {
-        if (!($ibuf = socket_read($msgsock, 2, PHP_BINARY_READ))) {
+        /*if (!($ibuf = socket_read($msgsock, 2, PHP_BINARY_READ))) {
             echo "initial socket_read() failed: reason: " . socket_strerror(socket_last_error($msgsock)) . "\n";
             break;
         }
@@ -63,17 +63,18 @@ do {
             break;
         }
         echo "$lbuf\n";
-
-        if (!($buf = socket_read($msgsock, (int)$lbuf, PHP_BINARY_READ))) {
+*/
+        //if (!($buf = socket_read($msgsock, (int)$lbuf, PHP_BINARY_READ))) {
+        if (!($buf = socket_read($msgsock, 2048, PHP_NORMAL_READ))) {
             echo "socket_read() failed: reason: " . socket_strerror(socket_last_error($msgsock)) . "\n";
             break;
         }
-        /*if (!$buf = trim($buf)) {
+        if (!$buf = trim($buf)) {
             continue;
         }
         if ($buf == 'quit') {
             break;
-        }*/
+        }
 
         // Write the data to the terminal
         echo "$buf\n";
@@ -84,12 +85,14 @@ do {
             $client->send($buf);
             logToDatabase($json);
             break;
-            
           case 'GetNextRunNumber':
-            $nextRunNum = getNextRunNumber($json->AndroidId)."\n";
-            echo "$nextRunNum\n";
+            $nextRunNum = getNextRunNumber($json->AndroidId);
+            echo "server next run number $nextRunNum\n";
             // Send next run number
-            socket_write($msgsock, $nextRunNum, strlen($nextRunNum)); 
+            $jObj = new \stdClass();
+            $jObj->NextRunNum = $nextRunNum;
+            $toSend = json_encode($jObj);
+            socket_write($msgsock, $toSend, strlen($toSend));
             break;
         }
 

@@ -4,7 +4,8 @@ function renderGraph(runNumber) {
     console.log(arr);
     var dataArray = [];
     $.each(arr, function(index, value) {
-      if (index !== 'LogTime' && index !== 'RunNumber') {
+      if (index !== 'LogTime' && index !== 'RunNumber'
+          && index !== 'Id' && index !== 'CarId') {
         dataArray.push({ 
           name: index,
           data: value,
@@ -24,7 +25,9 @@ function renderGraph(runNumber) {
     });
     Highcharts.chart('container', {
       title: {
-        text: 'Cedarville Supermileage Run ' + arr.LogTime[0].substring(0, 10) + ' Data'
+        text: 'Cedarville Supermileage run data for '
+        + $('#RunNum :selected').text().split(' ')[0]
+        + ' on ' + arr.LogTime[0].substring(0, 10)
       },
 
       xAxis: {

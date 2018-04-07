@@ -33,22 +33,22 @@ function logToDatabase($data) {
     $rKillSwitch, $secondaryBatteryVoltage, $coolantTemperature,
     $intakeTemperature, $systemCurrent, $latitude, $longitude, $runNumber);
 
-  $carId = cId;
-  $logTime = $data->LogTime;
-  $wheelRpm = $data->WheelRpm;
-  $groundSpeed = $data->GroundSpeed;
-  $windSpeed = $data->WindSpeed;
-  $batteryVoltage = $data->BatteryVoltage;
-  $lKillSwitch = $data->LKillSwitch;
-  $mKillSwitch = $data->MKillSwitch;
-  $rKillSwitch = $data->RKillSwitch;
-  $secondaryBatteryVoltage = $data->SecondaryBatteryVoltage;
-  $coolantTemperature = $data->CoolantTemperature;
-  $intakeTemperature = $data->IntakeTemperature;
-  $systemCurrent = $data->SystemCurrent;
-  $latitude = $data->Latitude;
-  $longitude = $data->Longitude;
-  $runNumber = $data->runNumber;
+  $carId = (int)$cId;
+  $logTime = date($data->LogTime);
+  $wheelRpm = floatval($data->WheelRpm);
+  $groundSpeed = (int)$data->GroundSpeed;
+  $windSpeed = (int)$data->WindSpeed;
+  $batteryVoltage = floatval($data->BatteryVoltage);
+  $lKillSwitch = (int)$data->LKillSwitch;
+  $mKillSwitch = (int)$data->MKillSwitch;
+  $rKillSwitch = (int)$data->RKillSwitch;
+  $secondaryBatteryVoltage = floatval($data->SecondaryBatteryVoltage);
+  $coolantTemperature = floatval($data->CoolantTemperature);
+  $intakeTemperature = floatval($data->IntakeTemperature);
+  $systemCurrent = floatval($data->SystemCurrent);
+  $latitude = floatval($data->Latitude);
+  $longitude = floatval($data->Longitude);
+  $runNumber = (int)$data->RunNumber;
 
   $stmt->execute();
 
@@ -62,7 +62,7 @@ function getNextRunNumber($androidId) {
     getDatabaseServerName());
 
   $carId = AndroidToCar($mysqli, $androidId);
-  echo PHP_EOL . $carId . PHP_EOL;
+  echo PHP_EOL . 'server car Id' . $carId . PHP_EOL;
 
   $sql = "SELECT MAX(RunNumber) ".
          "FROM SensorData ".
