@@ -1,0 +1,28 @@
+body {
+  min-height: 98vh;
+  display: grid;
+  grid-template-rows: 50px auto;
+  grid-template-columns: auto 600px;
+  grid-gap: 10px;
+  font-family: 'Rubik', sans-serif;
+}
+
+#SupermileageTitle {
+  grid-column: 1 / span 2;
+  grid-row: 1 / span 1;
+  font-size: 40px;
+  color: orange;
+  background-color: #005288;
+}
+
+#map {
+ /* height: 600px;
+  width: 50%;*/
+  grid-column: 1 / span 1;
+  grid-row: 2 / span 1;
+}
+
+#InfoWrapper {
+  grid-column: 2 / span 1;
+  grid-row: 2 / span 1;
+}
