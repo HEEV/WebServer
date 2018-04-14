@@ -26,12 +26,13 @@ function logToDatabase($data) {
 
   //INSERT into DB
   $stmt = $mysqli->prepare("INSERT INTO SensorData
-  (CarId, LogTime, WheelRpm, GroundSpeed, WindSpeed, BatteryVoltage, LKillSwitch, MKillSwitch, RKillSwitch, SecondaryBatteryVoltage, CoolantTemperature, IntakeTemperature, SystemCurrent, Latitude, Longitude, RunNumber)
-  VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+  (CarId, LogTime, WheelRpm, GroundSpeed, WindSpeed, BatteryVoltage, LKillSwitch, MKillSwitch, RKillSwitch, SecondaryBatteryVoltage, CoolantTemperature, IntakeTemperature, SystemCurrent, Latitude, Longitude, RunNumber, LapNumber)
+  VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
   $stmt->bind_param('isddddiiiddddddi', $carId, $logTime, $wheelRpm,
     $groundSpeed, $windSpeed, $batteryVoltage, $lKillSwitch, $mKillSwitch,
     $rKillSwitch, $secondaryBatteryVoltage, $coolantTemperature,
-    $intakeTemperature, $systemCurrent, $latitude, $longitude, $runNumber);
+    $intakeTemperature, $systemCurrent, $latitude, $longitude, $runNumber,
+    $lapNumber);
 
   $carId = (int)$cId;
   $logTime = date($data->LogTime);
@@ -49,6 +50,7 @@ function logToDatabase($data) {
   $latitude = floatval($data->Latitude);
   $longitude = floatval($data->Longitude);
   $runNumber = (int)$data->RunNumber;
+  $lapNumber = (int)$data->LapNumber;
 
   $stmt->execute();
 

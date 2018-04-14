@@ -3,6 +3,8 @@ var conn = new WebSocket('ws://jacob.cedarville.edu:8080');
 var marker = null;
 var bounds = null;
 var map = null;
+var carName = 'Unavailable';
+var android = null;
 
 window.setInterval(function() {
   if (conn == null) {
@@ -14,11 +16,21 @@ function fixTheLittleOnes(seconds) {
   return seconds > 9 ? "" + seconds : "0" + seconds;
 }
 
+function getCarName(andr) {
+  if(android !== andr) {
+    android = andr;
+    $.post('./API/GetCarName.php',{ androidId: andr }, function(data) {
+      var parsed = JSON.parse(data);
+      carName = parsed.Name[0];
+    });
+  }
+}
+
 conn.onmessage = function(e) {
   var data = JSON.parse(e.data);
-//socket.on('push', function(data) {
-  //var msg = JSON.parse(JSON.stringify(data));
-  $('#AndroidId').text(data.AndroidId);
+  getCarName(data.AndroidId);
+  $('#CarName').text(carName);
+  $('#LapNumber').text(data.LapNumber);
   $('#BatteryVoltage').text(data.BatteryVoltage);
   $('#CoolantTemperature').text(data.CoolantTemperature);
   $('#GroundSpeed').text(data.GroundSpeed);
@@ -33,17 +45,6 @@ conn.onmessage = function(e) {
   $('#WheelRpm').text(data.WheelRpm);
   $('#Windspeed').text(data.WindSpeed);
   updateMap(data.Latitude, data.Longitude);
-  /*var carspeed = Math.ceil(data.groundSpeed * 10) / 10;
-  $('#CarName').text(data.carName);
-  $('#CarSpeed').text(carspeed);
-  $('#AverageSpeed').text(data.averageSpeed);
-  $('#WindSpeed').text(data.windspeed);
-  $('#RPM').text(data.rpm);
-  $('#CurrentLap').text(data.currentLap);
-  $('#LastLapTime').text(data.lastLapTime);
-  var seconds = fixTheLittleOnes(Math.floor((data.time/1000)%60));
-  var minutes = Math.floor((data.time/1000)/60);
-  $('#TotalTimeElapsed').text(minutes + ":" + seconds);*/
   console.log(JSON.stringify(data));
 };
 
