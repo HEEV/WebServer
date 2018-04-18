@@ -29,7 +29,10 @@ class Model
   }
 
   public function GetRunIds() {
-    $sql = 'SELECT Cars.Name, a.LogTime, a.RunNumber from Cars join (SELECT MIN(SensorData.CarId) as CarId, MIN(SensorData.LogTime) LogTime, SensorData.RunNumber FROM SensorData GROUP BY SensorData.RunNumber) a on a.CarId = Cars.Id';
+    $sql = 'SELECT Cars.Name, a.LogTime, a.RunNumber FROM Cars
+    JOIN (SELECT MIN(SensorData.CarId) as CarId, MIN(SensorData.LogTime) LogTime, SensorData.RunNumber
+          FROM SensorData GROUP BY SensorData.RunNumber) a ON a.CarId = Cars.Id
+          ORDER BY a.LogTime DESC;';
     $result = $this->conn->query($sql);
     $runIds = array();
 

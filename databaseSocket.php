@@ -37,8 +37,8 @@ function logToDatabase($data) {
   $carId = (int)$cId;
   $logTime = date($data->LogTime);
   $wheelRpm = floatval($data->WheelRpm);
-  $groundSpeed = (int)$data->GroundSpeed;
-  $windSpeed = (int)$data->WindSpeed;
+  $groundSpeed = floatval($data->GroundSpeed);
+  $windSpeed = floatval($data->WindSpeed);
   $batteryVoltage = floatval($data->BatteryVoltage);
   $lKillSwitch = (int)$data->LKillSwitch;
   $mKillSwitch = (int)$data->MKillSwitch;
