@@ -5,6 +5,7 @@ var bounds = null;
 var map = null;
 var car = null;
 
+/*
 window.setInterval(function() {
   if (conn == null) {
     conn = new WebSocket('ws://jacob.cedarville.edu:8080');
@@ -14,6 +15,29 @@ window.setInterval(function() {
 function fixTheLittleOnes(seconds) {
   return seconds > 9 ? "" + seconds : "0" + seconds;
 }
+
+conn.onmessage = function(e) {
+  var data = JSON.parse(e.data);
+  getCarName(data.AndroidId);
+  $('#CarName').text(carName);
+  $('#LapNumber').text(data.LapNumber);
+  $('#BatteryVoltage').text(parseFloat(data.BatteryVoltage).toFixed(2));
+  $('#CoolantTemperature').text(parseFloat(data.CoolantTemperature).toFixed(2));
+  $('#GroundSpeed').text(parseFloat(data.GroundSpeed).toFixed(2));
+  $('#IntakeTemperature').text(parseFloat(data.IntakeTemperature).toFixed(2));
+  $('#LKillSwitch').text(data.LKillSwitch);
+  $('#LogTime').text(data.LogTime);
+  $('#MKillSwitch').text(data.MKillSwitch);
+  $('#RKillSwitch').text(data.RKillSwitch);
+  $('#RunNumber').text(data.RunNumber);
+  $('#SecondaryBatteryVoltage').text(parseFloat(data.SecondaryBatteryVoltage).toFixed(2));
+  $('#SystemCurrent').text(parseFloat(data.SystemCurrent).toFixed(2));
+  $('#WheelRpm').text(parseFloat(data.WheelRpm).toFixed(2));
+  $('#Windspeed').text(parseFloat(data.WindSpeed).toFixed(2));
+  updateMap(data.Latitude, data.Longitude);
+  console.log(JSON.stringify(data));
+};
+*/
 
 function getCarName(cid) {
   if(car !== cid) {
@@ -50,29 +74,7 @@ function getNewData() {
 
 setInterval(function(){ 
   getNewData();
-}, 1000);
-
-conn.onmessage = function(e) {
-  var data = JSON.parse(e.data);
-  getCarName(data.AndroidId);
-  $('#CarName').text(carName);
-  $('#LapNumber').text(data.LapNumber);
-  $('#BatteryVoltage').text(parseFloat(data.BatteryVoltage).toFixed(2));
-  $('#CoolantTemperature').text(parseFloat(data.CoolantTemperature).toFixed(2));
-  $('#GroundSpeed').text(parseFloat(data.GroundSpeed).toFixed(2));
-  $('#IntakeTemperature').text(parseFloat(data.IntakeTemperature).toFixed(2));
-  $('#LKillSwitch').text(data.LKillSwitch);
-  $('#LogTime').text(data.LogTime);
-  $('#MKillSwitch').text(data.MKillSwitch);
-  $('#RKillSwitch').text(data.RKillSwitch);
-  $('#RunNumber').text(data.RunNumber);
-  $('#SecondaryBatteryVoltage').text(parseFloat(data.SecondaryBatteryVoltage).toFixed(2));
-  $('#SystemCurrent').text(parseFloat(data.SystemCurrent).toFixed(2));
-  $('#WheelRpm').text(parseFloat(data.WheelRpm).toFixed(2));
-  $('#Windspeed').text(parseFloat(data.WindSpeed).toFixed(2));
-  updateMap(data.Latitude, data.Longitude);
-  console.log(JSON.stringify(data));
-};
+}, 500);
 
 function initMap() {
   var car = {lat: 39.746872, lng: -83.813105};
