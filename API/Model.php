@@ -86,7 +86,7 @@ class Model
 
 
   public function GetLatestRunRow() {
-    $sql  = 'SELECT * FROM SensorData ORDER BY LogTime DESC LIMIT 1;';
+    $sql  = 'SELECT * FROM SensorData ORDER BY Id DESC LIMIT 1;';
     $stmt = $this->conn->prepare($sql);
 
     if (!$stmt->execute()) {
