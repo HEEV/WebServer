@@ -84,12 +84,48 @@ class Model
     return $result;
   }
 
-  public function GetCarName($androidId) {
-    $sql = 'SELECT c.Name FROM Cars c
-    JOIN CarTablet ct ON c.Id = ct.CarId
-    WHERE ct.AndroidId = ?;';
+
+  public function GetLatestRunRow() {
+    $sql  = 'SELECT * FROM SensorData ORDER BY LogTime DESC LIMIT 1;';
     $stmt = $this->conn->prepare($sql);
-    $stmt->bind_param('s', $androidId);
+
+    if (!$stmt->execute()) {
+      if ( ($errors = $this->conn->errorInfo()) != null) {
+        foreach ($errors as $error) {
+          echo "SQLSTATE: {$error[0]}\n";
+          echo "Code: {$error[1]}\n";
+          echo "message: {$error[2]}\n";
+        }
+      }
+    }
+
+    $query = $stmt->get_result();
+    if ($query->num_rows === 0) {
+      echo "Error: no entries\n";
+      exit;
+    }
+    
+    $result = array();
+    $isFirst = TRUE;
+    while ($entry = $query->fetch_assoc()) {
+      foreach ($entry as $column => $value) {
+        if ($isFirst) {
+          $result[$column] = array();
+        }
+        $result[$column][] = $value;
+      }
+      $isFirst = FALSE;
+    }
+    $stmt->close();
+
+    return $result;
+  }
+
+  public function GetCarName($carId) {
+    $sql = 'SELECT c.Name FROM Cars c
+    WHERE c.Id = ?;';
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bind_param('i', $carId);
 
     if (!$stmt->execute()) {
       if ( ($errors = $this->conn->errorInfo()) != null) {

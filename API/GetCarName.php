@@ -1,12 +1,12 @@
 <?php
 require_once('Model.php');
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['androidId'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['carId'])) {
 
- $androidId = $_POST['androidId'];
+ $carId = $_POST['carId'];
 
  $model = new Model();
- $carName = $model->GetCarName($androidId);
+ $carName = $model->GetCarName($carId);
  echo json_encode($carName);
 
 } else {

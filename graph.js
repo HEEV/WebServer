@@ -15,7 +15,8 @@ function renderGraph(runNumber) {
                      index === 'Longitude'||
                      index === 'LKillSwitch' ||
                      index === 'MKillSwitch' ||
-                     index === 'RKillSwitch') ? false : true)
+                     index === 'RKillSwitch' ||
+                     index === 'LapNumber') ? false : true)
         });
       }
     });

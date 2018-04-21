@@ -28,7 +28,7 @@ function logToDatabase($data) {
   $stmt = $mysqli->prepare("INSERT INTO SensorData
   (CarId, LogTime, WheelRpm, GroundSpeed, WindSpeed, BatteryVoltage, LKillSwitch, MKillSwitch, RKillSwitch, SecondaryBatteryVoltage, CoolantTemperature, IntakeTemperature, SystemCurrent, Latitude, Longitude, RunNumber, LapNumber)
   VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-  $stmt->bind_param('isddddiiiddddddi', $carId, $logTime, $wheelRpm,
+  $stmt->bind_param('isddddiiiddddddii', $cId, $logTime, $wheelRpm,
     $groundSpeed, $windSpeed, $batteryVoltage, $lKillSwitch, $mKillSwitch,
     $rKillSwitch, $secondaryBatteryVoltage, $coolantTemperature,
     $intakeTemperature, $systemCurrent, $latitude, $longitude, $runNumber,
