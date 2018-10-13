@@ -142,7 +142,7 @@ func (c *Client) readPump() {
 			response.Data = data
 			response.MessageType = "NextRunNumberResponse"
 
-			// Marshal response for client
+			// Marshal response for client (marshal changes to bytes)
 			bytes, err := json.Marshal(response)
 			if err != nil {
 				log.Error("Unable to marshal GetNextRunNumber response")
