@@ -89,6 +89,8 @@ func (c *Client) readPump() {
 		// Packet identification information, all packets must include these
 		var ident packets.Identification
 
+		// TODO: Make this require identification packet fields
+
 		// Unmarshal the data into the identification packet
 		err = json.Unmarshal(message, &ident)
 		if err != nil {
@@ -102,16 +104,26 @@ func (c *Client) readPump() {
 			continue
 		}
 
-		// Generate the client's UUID
+		// Generate the message's UUID
 		uid, err := uuid.NewV4()
 		if err != nil {
 			log.Error(err)
 			return
 		}
 
-		response := packets.Identification{
-			AndroidID: ident.AndroidID,
-			MessageID: uid.String(),
+		respIdent := packets.Identification{
+			AndroidID:   ident.AndroidID,
+			MessageType: "",
+		}
+
+		respClientInfo := packets.ClientMessage{
+			nil,
+			respIdent,
+		}
+
+		response := packets.ServerMessage{
+			uid.String(),
+			respClientInfo,
 		}
 
 		switch ident.MessageType {
@@ -148,6 +160,15 @@ func (c *Client) readPump() {
 
 		case "Log":
 			// Log value to database
+			var logData packets.LogData
+
+			err = json.Unmarshal(message, &logData)
+			if err != nil {
+				// TODO: Error parsing
+
+				// Ignore message and wait for next one
+				continue
+			}
 
 		}
 
