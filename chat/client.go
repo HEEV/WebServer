@@ -96,14 +96,22 @@ func (c *Client) readPump() {
 			log.Warnf("Invalid packet from client %s!", c.uid)
 			log.Warn("Identification information not included!")
 			log.Warn("Data received:")
-			log.Warn(message)
+			log.Warn(string(message))
 
 			// Drop the error after logging and wait for next message
 			continue
 		}
 
-		response := packets.ResponseBase{
+		// Generate the client's UUID
+		uid, err := uuid.NewV4()
+		if err != nil {
+			log.Error(err)
+			return
+		}
+
+		response := packets.Identification{
 			AndroidID: ident.AndroidID,
+			MessageID: uid.String(),
 		}
 
 		switch ident.MessageType {
@@ -120,6 +128,7 @@ func (c *Client) readPump() {
 				RunNumber: nextRun,
 			}
 			response.Data = data
+			response.MessageType = "NextRunNumberResponse"
 
 			// Marshal response for client
 			bytes, err := json.Marshal(response)
@@ -127,6 +136,12 @@ func (c *Client) readPump() {
 				log.Error("Unable to marshal GetNextRunNumber response")
 				log.Error(err)
 			}
+
+			log.Infof(
+				"Sending %+v response to connection %s",
+				string(message),
+				c.uid,
+			)
 
 			// Send response to client
 			c.send <- bytes
@@ -140,14 +155,14 @@ func (c *Client) readPump() {
 		numRecv := c.hub.NumClients() - 1
 
 		log.Infof(
-			"Connection %s sending message \"%s\" to %d other clients",
+			"Connection %s sending message \"%+v\" to %d other clients",
 			c.uid,
-			message,
+			string(message),
 			numRecv,
 		)
 
-		// TODO: Avoid broadcasting message back to client
-		c.hub.broadcast <- message
+		// Broadcast the message out to all other connected clients
+		c.hub.broadcast <- BroadcastMessage{message, c}
 	}
 }
 

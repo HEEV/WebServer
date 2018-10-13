@@ -1,5 +1,7 @@
 # Golang binaries
 GoWebServer
+WebServer
+debug/*
 
 # Logs
 logs

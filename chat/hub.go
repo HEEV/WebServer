@@ -4,13 +4,20 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// BroadcastMessage represents a data/client pair that will be passed to the
+// hub to broadcast messages to all connected clients other than sending one
+type BroadcastMessage struct {
+	Data   []byte
+	Client *Client
+}
+
 // Hub keeps track of all the information for the connected clients
 type Hub struct {
 	// Registered clients, by UUID string
 	clients map[string]*Client
 
 	// Inbound messages from the clients
-	broadcast chan []byte
+	broadcast chan BroadcastMessage
 
 	// Queue of client registration requests
 	register chan *Client
@@ -22,7 +29,7 @@ type Hub struct {
 // NewHub creates a new websocket hub
 func NewHub() *Hub {
 	return &Hub{
-		broadcast:  make(chan []byte),
+		broadcast:  make(chan BroadcastMessage),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 		clients:    make(map[string]*Client),
@@ -59,9 +66,14 @@ func (h *Hub) Run() {
 
 		case message := <-h.broadcast:
 			for uid, client := range h.clients {
+				// Avoid broadcasting message back to sending client
+				if client == message.Client {
+					continue
+				}
+
 				select {
 				// Attempt to put the message onto the client's message channel
-				case client.send <- message:
+				case client.send <- message.Data:
 				default:
 					// If the message write failed then assume client is dead
 					close(client.send)
