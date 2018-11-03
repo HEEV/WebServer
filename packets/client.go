@@ -27,12 +27,12 @@ type LogData struct {
 	GroundSpeed             float32 //`json:"groundSpeed"`
 	IntakeTemperature       float32 //`json:"intakeTemperature"`
 	LKillSwitch             int     //`json:"lKillSwitch"`
-	Latitude                float32 //`json:"latitude"`
-	LogTime                 string  //`json:"logTime"`
-	Longitude               float32 //`json:"longitude"`
-	LapNumber               int     //`json:"lapNumber"`
 	MKillSwitch             int     //`json:"mKillSwitch"`
 	RKillSwitch             int     //`json:"rKillSwitch"`
+	Longitude               float32 //`json:"longitude"`
+	Latitude                float32 //`json:"latitude"`
+	LogTime                 string  //`json:"logTime"`
+	LapNumber               int     //`json:"lapNumber"`
 	SecondaryBatteryVoltage float32 //`json:"secondaryBatteryVoltage"`
 	WheelRpm                float32 //`json:"wheelRPM"`
 	WindSpeed               float32 //`json:"windSpeed"`
