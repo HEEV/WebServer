@@ -9,8 +9,8 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/satori/go.uuid"
 
-	"../packets"
-	"../sql"
+	"github.com/HEEV/WebServer/packets"
+	"github.com/HEEV/WebServer/sql"
 
 	log "github.com/sirupsen/logrus"
 )

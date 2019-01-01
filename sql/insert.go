@@ -1,7 +1,7 @@
 package sql
 
 import (
-	"../packets"
+	"github.com/HEEV/WebServer/packets"
 
 	log "github.com/sirupsen/logrus"
 )

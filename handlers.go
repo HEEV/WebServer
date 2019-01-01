@@ -6,7 +6,7 @@ import (
 
 	"runtime"
 
-	"./chat"
+	"github.com/HEEV/WebServer/chat"
 
 	log "github.com/sirupsen/logrus"
 )
