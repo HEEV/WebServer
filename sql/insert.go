@@ -20,9 +20,9 @@ func LogToDatabase(data packets.LogData) {
 		"INSERT INTO sensorData (" +
 			"runNumber, batteryVoltage, groundSpeed, intakeTemperature, lKillSwitch, rKillSwitch, mKillSwitch, " +
 			"longitude, latitude, logTime, lapNumber, secondaryBatteryVoltage, wheelSpeed, windSpeed, systemCurrent, " +
-			"coolantTemperature" +
+			"coolantTemperature, carId" +
 			")" +
-			"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?)",
 	)
 	if err != nil {
 		log.Error("Error during database update with log data...")
@@ -46,6 +46,7 @@ func LogToDatabase(data packets.LogData) {
 		data.WindSpeed,
 		data.SystemCurrent,
 		data.CoolantTemperature,
+	    data.carId,
 	)
 
 }
