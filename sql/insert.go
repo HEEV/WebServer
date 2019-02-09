@@ -1,10 +1,10 @@
 package sql
 
 import (
-
-	"../packets"
 	"database/sql"
 	"expvar"
+
+	"github.com/HEEV/WebServer/packets"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -51,67 +51,66 @@ func LogToDatabase(data packets.LogData) {
 }
 
 //This function uses the andriodId to grab the carId
-func AndriodToCar(db *sql.DB, andriodId expvar.Var)string {
+func AndriodToCar(db *sql.DB, andriodId expvar.Var) string {
 	//Gets the database
-	rows, err := db.Query("SELECT CarId." +
-							" FROM CarTablet. " +
-							" WHERE AndroidId = ?", andriodId);
+	rows, err := db.Query("SELECT CarId."+
+		" FROM CarTablet. "+
+		" WHERE AndroidId = ?", andriodId)
 	//Grabs the andriod id and puts in and aid
 	var carId string
 	defer rows.Close()
-	for rows.Next(){
-		err:= rows.Scan(&carId);
-		checkErr(err);
+	for rows.Next() {
+		err := rows.Scan(&carId)
+		checkErr(err)
 		log.Println(carId)
 	}
-	checkErr(err);
-	err = rows.Err();
+	checkErr(err)
+	err = rows.Err()
 	checkErr(err)
 
-	return carId;
+	return carId
 }
-
 
 //This gets the current run number
 func getNextRunNumber(andriodID expvar.Var) int {
 	//gets the database
-	db := GetDatabase("data/test.sqlite");
+	db := GetDatabase("data/test.sqlite")
 
 	//The commented line below does not work still need to figure out how to do it in go
 	//var mysqli = new mysqli('localhost', getDatabaseUser(), getDatabasePassword(), getDatabaseServerName());
 
 	//Inserts the data in and prints out the run number
-	var carId= AndriodToCar(db, andriodID);
+	var carId = AndriodToCar(db, andriodID)
 	log.Println("server car id ", carId)
 
-	rows, err := db.Query("SELECT MAX(RunNumber)." +
-							" FROM SensorData." +
-							" WHERE Car id = ?", andriodID)
-	checkErr(err);
+	rows, err := db.Query("SELECT MAX(RunNumber)."+
+		" FROM SensorData."+
+		" WHERE Car id = ?", andriodID)
+	checkErr(err)
 
 	var carRunNum int
-	defer rows.Close();
-	for rows.Next(){
-		err:=rows.Scan(&carRunNum)
-		checkErr(err);
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&carRunNum)
+		checkErr(err)
 		log.Println(carId)
 	}
-	checkErr(err);
+	checkErr(err)
 	//TODO: grab the carRunNum not carID
 	//carRunNum = stmt.Exec(carId);
-	log.Println("RunNum: ", carRunNum);
+	log.Println("RunNum: ", carRunNum)
 
 	//Get the next car number
-	var nextRunNumber = carRunNum + 1;
-	db.Close();
+	var nextRunNumber = carRunNum + 1
+	db.Close()
 
-	return nextRunNumber;
+	return nextRunNumber
 }
 
 //This get the AndriodId
 
-func checkErr(err error){
-	if err != nil{
-		panic(err);
+func checkErr(err error) {
+	if err != nil {
+		panic(err)
 	}
 }
