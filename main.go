@@ -10,7 +10,7 @@ import (
 	"net/http"
 
 	// Server imports
-	"./chat"
+	"github.com/HEEV/WebServer/chat"
 
 	// Logging imports
 	debugFname "github.com/onrik/logrus/filename"
