@@ -90,6 +90,7 @@ func (c *Client) readPump() {
 		var ident packets.Identification
 
 		// TODO: Make this require identification packet fields
+		// Put jason into a struct
 
 		// Unmarshal the data into the identification packet
 		err = json.Unmarshal(message, &ident)

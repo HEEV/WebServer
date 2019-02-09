@@ -18,6 +18,7 @@ func initializeRoutes(hub *chat.Hub) {
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		chat.ServeWs(hub, w, r)
 	})
+	http.HandleFunc("/API", APIHandler)
 }
 
 // rootHandler handles requests to the server root
@@ -38,4 +39,9 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 
 	t, _ := template.ParseFiles("templates/root.html")
 	t.Execute(w, vals)
+}
+
+//TODO:make function that grabs all the data from db and then puts it into API
+func APIHandler(w http.ResponseWriter, r *http.Request){
+
 }

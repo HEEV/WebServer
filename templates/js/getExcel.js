@@ -23,6 +23,7 @@ $(function() {
   });*/
 
   $.ajax({
+      //TODO: Change URL make sure all the data is the same
     url: 'API/GetRunIds.php',
     type: 'get',
     success: function(data, status) {
