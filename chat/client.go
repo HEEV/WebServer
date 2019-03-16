@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 
 	"github.com/HEEV/WebServer/packets"
 	"github.com/HEEV/WebServer/sql"
@@ -170,8 +170,6 @@ func (c *Client) readPump() {
 				// Ignore message and wait for next one
 				continue
 			}
-
-
 		}
 
 		// Number of receiving clients = Total # of clients - 1 for sender

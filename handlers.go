@@ -18,7 +18,7 @@ func initializeRoutes(hub *chat.Hub) {
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		chat.ServeWs(hub, w, r)
 	})
-	http.HandleFunc("/API", APIHandler)
+	// http.HandleFunc("/API", APIHandler)
 }
 
 // rootHandler handles requests to the server root
@@ -41,16 +41,15 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, vals)
 }
 
-//TODO:make function that grabs all the data from db and then puts it into API
-func APIHandler(w http.ResponseWriter, r *http.Request){
-	if r.URL.Path != "/" {
-		http.Error(w, "Not found", http.StatusNotFound)
-		return
-	}
+// func APIHandler(w http.ResponseWriter, r *http.Request) {
+// 	if r.URL.Path != "/" {
+// 		http.Error(w, "Not found", http.StatusNotFound)
+// 		return
+// 	}
 
-	if r.Method != "GET" {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-	}
+//}
+// 	if r.Method != "GET" {
+// 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+// 	}
+// }
 
-
-}
