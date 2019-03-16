@@ -22,7 +22,7 @@ func LogToDatabase(data packets.LogData) {
 			"longitude, latitude, logTime, lapNumber, secondaryBatteryVoltage, wheelSpeed, windSpeed, systemCurrent, " +
 			"coolantTemperature, carId" +
 			")" +
-			"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?)",
+			"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?)",
 	)
 	if err != nil {
 		log.Error("Error during database update with log data...")
@@ -46,7 +46,7 @@ func LogToDatabase(data packets.LogData) {
 		data.WindSpeed,
 		data.SystemCurrent,
 		data.CoolantTemperature,
-	    data.carId,
+	    data.CarId,
 	)
 
 }
@@ -97,8 +97,6 @@ func getNextRunNumber(andriodID expvar.Var) int {
 		log.Println(carId)
 	}
 	checkErr(err)
-	//TODO: grab the carRunNum not carID
-	//carRunNum = stmt.Exec(carId);
 	log.Println("RunNum: ", carRunNum)
 
 	//Get the next car number

@@ -40,8 +40,18 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 	t, _ := template.ParseFiles("templates/root.html")
 	t.Execute(w, vals)
 }
-
+/*
 //TODO:make function that grabs all the data from db and then puts it into API
 func APIHandler(w http.ResponseWriter, r *http.Request){
+	if r.URL.Path != "/" {
+		http.Error(w, "Not found", http.StatusNotFound)
+		return
+	}
 
+	if r.Method != "GET" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
+
+	vals:
 }
+*/
