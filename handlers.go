@@ -41,7 +41,7 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, vals)
 }
 
-// func APIHandler(w http.ResponseWriter, r *http.Request) {
+//func APIHandler(w http.ResponseWriter, r *http.Request) {
 // 	if r.URL.Path != "/" {
 // 		http.Error(w, "Not found", http.StatusNotFound)
 // 		return
