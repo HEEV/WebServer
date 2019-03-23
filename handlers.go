@@ -45,7 +45,7 @@ func initializeRoutes(hub *chat.Hub) {
 			http.FileServer(http.Dir("./static/img"))))
 
 	// Handle API endpoint requests
-	http.HandleFunc("/API", apiHandler)
+	http.HandleFunc("/API/", apiHandler)
 
 	// Handle basic authentication
 	http.HandleFunc("/login", loginHandler)
@@ -120,35 +120,54 @@ func graphHandler(w http.ResponseWriter, r *http.Request) {
 func apiHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" && r.Method != "POST" {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
 	}
 
 	// Response message string
 	resp := ""
+	var err error
 
 	switch r.URL.Path {
-	case "/carName":
-		resp = api.CarNameHandler(r)
+	case "/API/carName":
+		resp, err = api.CarNameHandler(r)
 		break
 
-	case "/csv":
-		resp = api.CSVHandler(r)
+	case "/API/csv":
+		resp, _, err = api.CSVHandler(r)
 		break
 
-	case "/graph":
-		resp = api.GraphHandler(r)
+	case "/API/graph":
+		resp, err = api.GraphHandler(r)
 		break
 
-	case "/latestRunRow":
+	case "/API/latestRunRow":
 		resp = api.LatestRunHandler(r)
 		break
 
-	case "/runIds":
+	case "/API/runIds":
 		resp = api.RunIdsHandler(r)
 		break
 	}
 
+	if err != nil {
+		// Default HTTP error code
+		errCode := http.StatusInternalServerError
+
+		// Specifically invalid method
+		if err.Error() == "Method not allowed" {
+			errCode = http.StatusMethodNotAllowed
+		}
+
+		// Write HTTP status code
+		w.WriteHeader(errCode)
+
+		// Write error message
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	// No errors!
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(resp))
 }
 

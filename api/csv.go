@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/HEEV/WebServer/sql"
@@ -9,36 +10,48 @@ import (
 )
 
 // CSVHandler handles retrieval of data for /csv endpoint
-// Returns: A string of the data to return
-func CSVHandler(r *http.Request) string {
-	if r.Method != "POST" || r.URL.Query()["CarId"] == nil {
-		return ""
+// Returns: A string of the data to return, int of HTTP status, and an error
+func CSVHandler(r *http.Request) (string, int, error) {
+	// Validate the request was via POST method
+	code, err := ValidateMethod(r, "POST")
+	if err != nil {
+		log.Error(err)
+		return "", code, err
 	}
 
-	runId := r.URL.Query()["runId"]
+	// Attempt to get runId query argument
+	runId, err := TryGetQueryArg(r, "runId")
+	if err != nil {
+		log.Error(err)
+		return "", http.StatusBadRequest, err
+	}
 
 	///Grab the database
 	db := sql.GetDatabase("data/test.sqlite")
 
 	//Make sure there is no error when grabbing the data
 	if db == nil {
-		log.Error("Unable to connect to database for CSVHandler")
-		return ""
+		err := fmt.Errorf("Unable to connect to database for CSVHandler")
+		log.Error(err)
+		return "", http.StatusInternalServerError, err
 	}
 
 	//Do the sql query
 	rows, err := db.Query("SELECT * FROM SensorData WHERE RunNumber = ?;", runId)
 
 	if err != nil {
-		log.Error("Unable to connect to database for CSVHandler")
-		return ""
+		err := fmt.Errorf("Unable to retrieve row for CSVHandler")
+		log.Error(err)
+		return "", http.StatusInternalServerError, err
 	}
 
 	//This is gotten from stack overflow
 	cols, err := rows.Columns()
 	if err != nil {
-		log.Error("Failed to get columns", err)
-		return ""
+		httpErr := fmt.Errorf("Failed to get columns for CSVHandler")
+		log.Error(httpErr)
+		log.Error(err)
+		return "", http.StatusInternalServerError, httpErr
 	}
 
 	rawResult := make([][]byte, len(cols))
@@ -52,8 +65,10 @@ func CSVHandler(r *http.Request) string {
 	for rows.Next() {
 		err = rows.Scan(&runData)
 		if err != nil {
-			log.Error("Failed to Scan")
-			return ""
+			httpErr := fmt.Errorf("Failed to scan row for CSVHandler")
+			log.Error(httpErr)
+			log.Error(err)
+			return "", http.StatusInternalServerError, httpErr
 		}
 		for i := 0; i < (len(cols)); i++ {
 			temp := string(rawResult[i])
@@ -65,9 +80,12 @@ func CSVHandler(r *http.Request) string {
 	//Use the data from sql query to send back carName as a string
 	err = rows.Scan(&runData)
 	if err != nil {
-		return ""
+		httpErr := fmt.Errorf("Failed to scan row for CSVHandler")
+		log.Error(httpErr)
+		log.Error(err)
+		return "", http.StatusInternalServerError, httpErr
 	}
 
 	//Create our csv formatted string runData is formatted like [col][row]
-	return csv
+	return csv, http.StatusOK, nil
 }
