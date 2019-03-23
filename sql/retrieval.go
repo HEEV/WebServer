@@ -14,14 +14,21 @@ import (
 var once sync.Once
 var dbConn *sql.DB
 
-func GetDatabase(dbFile string) *sql.DB {
+// Database SQLite file
+const dbFile string = "data/test.sqlite"
+
+func getDatabase(dbFile string) *sql.DB {
 	// Attempts to connect to SQLite database and set the single instance dbConn
 	// Only is run once, after that it is ignored and the DB is already connected
 	once.Do(func() {
 		// Attempt to connect to the local SQLite database
 		db, err := ConnectToLocalDB(dbFile)
-		if (err != nil) {
+		if err != nil {
 			// Log stuff
+			log.Error(err)
+
+			// Have to create a new sync object to allow next connection
+			once = *new(sync.Once)
 			return
 		}
 
@@ -33,7 +40,7 @@ func GetDatabase(dbFile string) *sql.DB {
 }
 
 // ConnectToLocalDB connects to the local sqlite3 database used for testing
-func ConnectToLocalDB(dbFile string) (*sql.DB, error) {
+func connectToLocalDB(dbFile string) (*sql.DB, error) {
 	db, err := sql.Open("sqlite3", dbFile)
 	if err != nil {
 		return nil, err
@@ -42,10 +49,33 @@ func ConnectToLocalDB(dbFile string) (*sql.DB, error) {
 	return db, nil
 }
 
+// GetValue gets a value from the database based on the query
+func GetValue(query string) ([]string, error) {
+	// Response slice of strings
+
+	// Get database to read from
+	db := getDatabase("data/test.sqlite")
+	if db == nil {
+		log.Error("Unable to access database")
+		return make([]string, 0), fmt.Errorf("unable to open database to retrieve next run number")
+	}
+
+	// Query database
+	rows, err := db.Query(query)
+	if err != nil {
+		log.Error("Error occurred during data retrieval")
+		log.Errorf("Query: %s", query)
+		log.Error(err)
+		return "", err
+	}
+
+	return
+}
+
 // GetNextRunNumber retrieves the current run number from the SQL database,
 // returning -1 and an error if retrieval fails
 func GetNextRunNumber(androidID string) (int, error) {
-	db := GetDatabase("data/test.sqlite")
+	db := getDatabase("data/test.sqlite")
 	if db == nil {
 		log.Error("Unable to retrieve next run number")
 		return -1, fmt.Errorf("unable to open database to retrieve next run number")

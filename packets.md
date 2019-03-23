@@ -3,19 +3,38 @@
 All communication will be done via JSON, with the packet structure as described
 below.
 
-## Packet Definitions
+## Connect as new client
 
-All packets will follow the same basic form, with the same required
-identification packets whether the packet is from a client or the server.
+## Disconnect from server
 
-### Identification
+Simple `quit` string message, non-JSON, over websocket
 
-All packets being sent to/from the server must have these fields. If they are
-not included the packet is invalid and will be discarded and ignored.
+## Update from tablet
 
-- `messageType` - A string representing what data this message is expected to contain
-- `androidId` - A string representing the ID of the android tablet this data is going to/coming from.
+```json
+{
+    "AndroidId": network->macAddress,
+    "MessageType": "Log",
+    "RunNumber": runNum,
+    "BatteryVoltage": uiInterface->getBatteryVoltage,
+    "GroundSpeed": uiInterface->getGroundSpeed,
+    "IntakeTemperature": uiInterface->getManifoldAirTemp,
+    "LKillSwitch": 0,
+    "Latitude": QJsonValue(currentCoordinate.latitude,
+    "LogTime": dateStr,
+    "Longitude": QJsonValue(currentCoordinate.longitude,
+    "LapNumber": uiInterface->getCurrentLapNumber,
+    "MKillSwitch": 0,
+    "RKillSwitch": 0,
+    "SecondaryBatteryVoltage": 0.0,
+    "WheelRpm": uiInterface->getEngineRPM,
+    "WindSpeed": uiInterface->getWindSpeed,
+    "SystemCurrent": 1.02f,
+    "CoolantTemperature": 42.42
+}
+```
 
-This should be unique between all clients. 
+## Update run number on tablet
 
-If a client is not actually an android tablet then this value can be anything that will be unique.
+```json
+```

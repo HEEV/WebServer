@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"runtime"
 
+	"github.com/HEEV/WebServer/api"
 	"github.com/HEEV/WebServer/chat"
 	"github.com/gorilla/sessions"
 
@@ -142,22 +143,34 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
 
+	// Response message string
+	resp := ""
+
 	switch r.URL.Path {
 	case "/carName":
+		resp = api.CarNameHandler(r)
 		break
 
 	case "/csv":
+		resp = api.CSVHandler(r)
 		break
 
 	case "/graph":
+		resp = api.GraphHandler(r)
 		break
 
 	case "/latestRunRow":
+		resp = api.LatestRunHandler(r)
 		break
 
 	case "/runIds":
+		resp = api.RunIdsHandler(r)
 		break
 	}
+
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(resp))
 }
 
 // loginHandler handles requests to the login page
