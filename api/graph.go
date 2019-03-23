@@ -36,8 +36,8 @@ func GraphHandler(r *http.Request) string {
 	//TODO: change this so that it takes a whole array
 	//Use the data from sql query to send back carName as a string
 	var carName string
-	error := row.Scan(&carName)
-	if error != nil {
+	err = row.Scan(&carName)
+	if err != nil {
 		return ""
 	}
 

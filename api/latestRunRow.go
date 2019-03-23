@@ -31,10 +31,10 @@ func LatestRunHandler(r *http.Request) string {
 
 	//Use the data from sql query to send back carName as a string
 	var runData string
-	error := row.Scan(&runData)
-	if error != nil {
+	err = row.Scan(&runData)
+	if err != nil {
 		return ""
 	}
 
-	return carName
+	return ""
 }

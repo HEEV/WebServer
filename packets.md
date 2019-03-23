@@ -41,7 +41,12 @@ Simple `quit` string message, non-JSON, over websocket
 }
 ```
 
-## Update run number on tablet
+## Update run number on tablet (from server)
 
 ```json
+{
+    "MessageType": "NextRunNumber",
+    "AndroidId": network->macAddress,
+    "NextRunNumber": 0000
+}
 ```
