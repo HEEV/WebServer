@@ -2,13 +2,15 @@ package api
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/HEEV/WebServer/sql"
 	log "github.com/sirupsen/logrus"
-	"net/http"
 )
+
 // RunIdsHandler handles retrieval of data for /runIds endpoint
 // Returns: A string of the data to return
-func RunIdsHandler(r *http.Request) (string, error)  {
+func RunIdsHandler(r *http.Request) (string, error) {
 	// Validate the request was via POST method
 	_, err := ValidateMethod(r, "GET")
 	if err != nil {
@@ -45,7 +47,6 @@ func RunIdsHandler(r *http.Request) (string, error)  {
 	var car string
 	var combined string
 
-
 	for rows.Next() {
 		rows.Scan(&runId)
 		rows.Scan(&time)
@@ -59,5 +60,5 @@ func RunIdsHandler(r *http.Request) (string, error)  {
 		log.Error(err)
 		return "", httpErr
 	}
-	return "", nil
+	return combined, nil
 }

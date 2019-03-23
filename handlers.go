@@ -145,7 +145,7 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 		break
 
 	case "/API/runIds":
-		resp = api.RunIdsHandler(r)
+		resp, err = api.RunIdsHandler(r)
 		break
 	}
 
