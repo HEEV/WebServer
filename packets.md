@@ -3,7 +3,14 @@
 All communication will be done via JSON, with the packet structure as described
 below.
 
-## Connect as new client
+## Tablet's initial communication with server
+
+```json
+{
+    "MessageType": "GetNextRunNumber",
+    "AndroidId": network->macAddress
+}
+```
 
 ## Disconnect from server
 

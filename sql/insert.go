@@ -2,7 +2,6 @@ package sql
 
 import (
 	"database/sql"
-	"expvar"
 
 	"github.com/HEEV/WebServer/packets"
 	log "github.com/sirupsen/logrus"
@@ -13,7 +12,7 @@ func LogToDatabase(data packets.LogData) {
 	log.Info("Updating database...")
 
 	// Get DB connection
-	db := GetDatabase("data/test.sqlite")
+	db := getDatabase("data/test.sqlite")
 
 	// Create the update SQL statement
 	statement, err := db.Prepare(
@@ -24,11 +23,13 @@ func LogToDatabase(data packets.LogData) {
 			")" +
 			"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?)",
 	)
+
 	if err != nil {
 		log.Error("Error during database update with log data...")
 		log.Error(err)
 		return
 	}
+
 	statement.Exec(
 		data.RunNumber,
 		data.BatteryVoltage,
@@ -46,70 +47,62 @@ func LogToDatabase(data packets.LogData) {
 		data.WindSpeed,
 		data.SystemCurrent,
 		data.CoolantTemperature,
-	    data.CarId,
 	)
 
 }
 
-//This function uses the andriodId to grab the carId
-func AndriodToCar(db *sql.DB, andriodId expvar.Var) string {
-	//Gets the database
+// androidToCar uses the androidId to grab the carId
+func androidToCar(db *sql.DB, androidID string) (string, error) {
+	// Gets the database
 	rows, err := db.Query("SELECT CarId."+
 		" FROM CarTablet. "+
-		" WHERE AndroidId = ?", andriodId)
-	//Grabs the andriod id and puts in and aid
-	var carId string
-	defer rows.Close()
-	for rows.Next() {
-		err := rows.Scan(&carId)
-		checkErr(err)
-		log.Println(carId)
-	}
-	checkErr(err)
-	err = rows.Err()
-	checkErr(err)
+		" WHERE AndroidId = ?", androidID)
 
-	return carId
+	if err != nil {
+		return "", err
+	}
+
+	var carID string
+
+	if err = rows.Scan(&carID); err != nil {
+		return "", err
+	}
+
+	return carID, nil
 }
 
-//This gets the current run number
-func getNextRunNumber(andriodID expvar.Var) int {
-	//gets the database
-	db := GetDatabase("data/test.sqlite")
-
-	//The commented line below does not work still need to figure out how to do it in go
-	//var mysqli = new mysqli('localhost', getDatabaseUser(), getDatabasePassword(), getDatabaseServerName());
+// This gets the current run number
+func getNextRunNumber(androidID string) (int, error) {
+	// Retrieve database connection
+	db := getDatabase("data/test.sqlite")
 
 	//Inserts the data in and prints out the run number
-	var carId = AndriodToCar(db, andriodID)
-	log.Println("server car id ", carId)
+	carID, err := androidToCar(db, androidID)
+	if err != nil {
+		return -1, err
+	}
+
+	log.Infof("Car ID from DB: %s", carID)
 
 	rows, err := db.Query("SELECT MAX(RunNumber)."+
 		" FROM SensorData."+
-		" WHERE Car id = ?", andriodID)
-	checkErr(err)
+		" WHERE Car id = ?", androidID)
+
+	if err != nil {
+		return -1, err
+	}
 
 	var carRunNum int
-	defer rows.Close()
-	for rows.Next() {
-		err := rows.Scan(&carRunNum)
-		checkErr(err)
-		log.Println(carId)
-	}
-	checkErr(err)
-	log.Println("RunNum: ", carRunNum)
 
-	//Get the next car number
+	if err = rows.Scan(&carRunNum); err != nil {
+		return -1, err
+	}
+
+	log.Infof("Current Run Number: %d", carRunNum)
+
+	// Get the next car number
 	var nextRunNumber = carRunNum + 1
 	db.Close()
 
-	return nextRunNumber
-}
-
-//This get the AndriodId
-
-func checkErr(err error) {
-	if err != nil {
-		panic(err)
-	}
+	return nextRunNumber, nil
 }

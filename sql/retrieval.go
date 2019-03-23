@@ -22,7 +22,7 @@ func getDatabase(dbFile string) *sql.DB {
 	// Only is run once, after that it is ignored and the DB is already connected
 	once.Do(func() {
 		// Attempt to connect to the local SQLite database
-		db, err := ConnectToLocalDB(dbFile)
+		db, err := connectToLocalDB(dbFile)
 		if err != nil {
 			// Log stuff
 			log.Error(err)
@@ -39,7 +39,7 @@ func getDatabase(dbFile string) *sql.DB {
 	return dbConn
 }
 
-// ConnectToLocalDB connects to the local sqlite3 database used for testing
+// connectToLocalDB connects to the local sqlite3 database used for testing
 func connectToLocalDB(dbFile string) (*sql.DB, error) {
 	db, err := sql.Open("sqlite3", dbFile)
 	if err != nil {
@@ -66,10 +66,10 @@ func GetValue(query string) ([]string, error) {
 		log.Error("Error occurred during data retrieval")
 		log.Errorf("Query: %s", query)
 		log.Error(err)
-		return "", err
+		return nil, err
 	}
 
-	return
+	return nil, nil
 }
 
 // GetNextRunNumber retrieves the current run number from the SQL database,

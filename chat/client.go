@@ -89,15 +89,11 @@ func (c *Client) readPump() {
 		// Packet identification information, all packets must include these
 		var ident packets.Identification
 
-		// TODO: Make this require identification packet fields
-		// Put jason into a struct
-
 		// Unmarshal the data into the identification packet
 		err = json.Unmarshal(message, &ident)
 		if err != nil {
 			// There was an error unmarshalling the packet identification
 			log.Warnf("Invalid packet from client %s!", c.uid)
-			log.Warn("Identification information not included!")
 			log.Warn("Data received:")
 			log.Warn(string(message))
 
@@ -115,16 +111,6 @@ func (c *Client) readPump() {
 		respIdent := packets.Identification{
 			AndroidID:   ident.AndroidID,
 			MessageType: "",
-		}
-
-		respClientInfo := packets.ClientMessage{
-			nil,
-			respIdent,
-		}
-
-		response := packets.ServerMessage{
-			uid.String(),
-			respClientInfo,
 		}
 
 		switch ident.MessageType {
@@ -159,17 +145,31 @@ func (c *Client) readPump() {
 			// Send response to client
 			c.send <- bytes
 
+			// Don't need to broadcast this response
+			continue
+
 		case "Log":
 			// Log value to database
 			var logData packets.LogData
 
 			err = json.Unmarshal(message, &logData)
 			if err != nil {
-				// TODO: Error parsing
+				// There was an error unmarshalling the Log packet
+				log.Warnf("Invalid packet from client %s!", c.uid)
+				log.Warn("Data received:")
+				log.Warn(string(message))
 
 				// Ignore message and wait for next one
 				continue
 			}
+
+			// Store data to database
+			log.Infof(
+				"Updating database from client %s data",
+				c.ui
+			)
+
+			sql.LogToDatabase(logData)
 		}
 
 		// Number of receiving clients = Total # of clients - 1 for sender
@@ -262,6 +262,7 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		send: make(chan []byte, 256),
 		uid:  uid.String(),
 	}
+
 	// Queue the new client to be registered with the hub
 	client.hub.register <- client
 
