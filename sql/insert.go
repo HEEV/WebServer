@@ -12,7 +12,7 @@ func LogToDatabase(data packets.LogData) {
 	log.Info("Updating database...")
 
 	// Get DB connection
-	db := getDatabase("data/test.sqlite")
+	db := GetDatabase("data/test.sqlite")
 
 	// Create the update SQL statement
 	statement, err := db.Prepare(
@@ -63,6 +63,5 @@ func androidToCar(db *sql.DB, androidID string) (string, error) {
 	if err := row.Scan(&carID); err != nil {
 		return "", err
 	}
-
 	return carID, nil
 }

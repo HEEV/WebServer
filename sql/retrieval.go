@@ -16,7 +16,7 @@ var dbConn *sql.DB
 // Database SQLite file
 const dbFile string = "data/test.sqlite"
 
-func getDatabase(dbFile string) *sql.DB {
+func GetDatabase(dbFile string) *sql.DB {
 	// Attempts to connect to SQLite database and set the single instance dbConn
 	// Only is run once, after that it is ignored and the DB is already connected
 	once.Do(func() {
@@ -89,7 +89,7 @@ func connectToLocalDB(dbFile string) (*sql.DB, error) {
 // returning -1 and an error if retrieval fails
 func GetNextRunNumber(androidID string) (int, error) {
 	// Retrieve database connection
-	db := getDatabase("data/test.sqlite")
+	db := GetDatabase("data/test.sqlite")
 
 	//Inserts the data in and prints out the run number
 	carID, err := androidToCar(db, androidID)

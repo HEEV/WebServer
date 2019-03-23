@@ -123,23 +123,16 @@ func APIHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 
-func GetCarName(w http.ResponseWriter, r *http.Request){
-	ErrorCheck(w, r, "APIHandler")
-	if r.Method == "POST" && r.URL.Query()["CarId"] != nil {
-		var CarId = r.URL.Query()["CarId"]
-		//function in model.php
-		var carName = GetCarName(CarId)
-		fmt.Println(carName);
+func ErrorCheck(w http.ResponseWriter, r *http.Request, method string) {
+	if r.URL.Path != "/" {
+		http.Error(w, "Not found for "+method, http.StatusNotFound)
+		return
 	}
 }
 
-func ErrorCheck(w http.ResponseWriter, r *http.Request, method string){
-	if r.URL.Path != "/" {
-		http.Error(w, "Not found for " + method,   http.StatusNotFound)
-		return
 // apiHandler provides access to data stored in the DB
 func apiHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
+	if r.Method != "GET" && r.Method != "POST" {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
 
