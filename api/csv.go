@@ -55,30 +55,28 @@ func CSVHandler(r *http.Request) (string, int, error) {
 	}
 
 	rawResult := make([][]byte, len(cols))
-	runData := make([]interface{}, len(cols))
+	dest := make([]interface{}, len(cols))
 	for i, raw := range rawResult {
-		runData[i] = raw // Put pointers to each string in the interface slice
+		dest[i] = raw // Put pointers to each string in the interface slice
 	}
 
 	//TODO: grab data from the row of run id and change it to cvs
 	csv := ""
 	for rows.Next() {
-		err = rows.Scan(&runData)
+		err = rows.Scan(dest...)
 		if err != nil {
 			httpErr := fmt.Errorf("Failed to scan row for CSVHandler")
 			log.Error(httpErr)
 			log.Error(err)
 			return "", http.StatusInternalServerError, httpErr
 		}
-		for i := 0; i < (len(cols)); i++ {
-			temp := string(rawResult[i])
-			csv += temp + ","
+		for raw := range rawResult {
+			csv += string(raw) + ","
 		}
 		csv = "\n"
 	}
 
 	//Use the data from sql query to send back carName as a string
-	err = rows.Scan(&runData)
 	if err != nil {
 		httpErr := fmt.Errorf("Failed to scan row for CSVHandler")
 		log.Error(httpErr)

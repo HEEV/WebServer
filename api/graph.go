@@ -3,7 +3,6 @@ package api
 import (
 	"fmt"
 	"net/http"
-
 	"github.com/HEEV/WebServer/sql"
 	log "github.com/sirupsen/logrus"
 )
@@ -11,6 +10,7 @@ import (
 // GraphHandler handles retrieval of data for /graph endpoint
 // Returns: A string of the data to return
 func GraphHandler(r *http.Request) (string, error) {
+
 	// Validate the request was via POST method
 	_, err := ValidateMethod(r, "POST")
 	if err != nil {
@@ -36,25 +36,48 @@ func GraphHandler(r *http.Request) (string, error) {
 	}
 
 	//Do the sql query
-	row, err := db.Query("SELECT * FROM SensorData WHERE RunNumber = ?;", runId)
+	rows, err := db.Query("SELECT * FROM SensorData WHERE RunNumber = ?;", runId)
 
-	if row == nil {
+	if rows == nil {
 		httpErr := fmt.Errorf("Unable to connect to database for GraphHandler")
 		log.Error(httpErr)
 		log.Error(err)
 		return "", httpErr
 	}
 
-	//TODO: change this so that it takes a whole array
-	//Use the data from sql query to send back carName as a string
-	var carName string
-	err = row.Scan(&carName)
+	cols, err := rows.Columns()
 	if err != nil {
+		log.Error("Failed to get columns", err)
+		return "",err
+	}
+	//Use the data from sql query to send back carName as a string
+	rawResult := make([][]byte, len(cols))
+	dest := make([]interface{}, len(cols))
+	var runData string
+
+	for i, _ := range rawResult {
+		dest[i] = &rawResult[i] // Put pointers to each string in the interface slice
+	}
+
+	for rows.Next() {
+		err = rows.Scan(dest...)
+		if err != nil {
+			fmt.Println("Failed to scan row", err)
+			return "", err
+		}
+
+		for raw := range rawResult {
+			runData += string(raw) + " "
+		}
+		runData += "\n"
+	}
+
+		if err != nil {
 		httpErr := fmt.Errorf("Failed to scan row for CSVHandler")
 		log.Error(httpErr)
 		log.Error(err)
 		return "", httpErr
 	}
 
-	return carName, nil
+	return runData, nil
 }
