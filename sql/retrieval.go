@@ -1,7 +1,6 @@
 package sql
 
 import (
-	"fmt"
 	"sync"
 
 	"database/sql"
@@ -49,49 +48,70 @@ func connectToLocalDB(dbFile string) (*sql.DB, error) {
 	return db, nil
 }
 
+// NOTE: Use this function as an example, but this won't work with our
+// database, the types are too disparate.
+
 // GetValue gets a value from the database based on the query
-func GetValue(query string) ([]string, error) {
-	// Response slice of strings
+// func GetValue(query string) ([][]interface{}, error) {
+// 	// Response slice of strings
+// 	var resp = make([][]interface{}, 0)
 
-	// Get database to read from
-	db := getDatabase("data/test.sqlite")
-	if db == nil {
-		log.Error("Unable to access database")
-		return make([]string, 0), fmt.Errorf("unable to open database to retrieve next run number")
-	}
+// 	// Get database to read from
+// 	db := getDatabase("data/test.sqlite")
+// 	if db == nil {
+// 		log.Error("Unable to access database")
+// 		return nil, fmt.Errorf("unable to open database to retrieve next run number")
+// 	}
 
-	// Query database
-	rows, err := db.Query(query)
-	if err != nil {
-		log.Error("Error occurred during data retrieval")
-		log.Errorf("Query: %s", query)
-		log.Error(err)
-		return nil, err
-	}
+// 	// Query database
+// 	rows, err := db.Query(query)
+// 	defer rows.Close()
+// 	if err != nil {
+// 		log.Error("Error occurred during data retrieval")
+// 		log.Errorf("Query: %s", query)
+// 		log.Error(err)
+// 		return nil, err
+// 	}
 
-	return nil, nil
-}
+// 	for rows.Next() {
+// 		var row = make([]interface{}, 1)
+// 		append(resp, rows.Scan)
+// 	}
+
+// 	if rows.Err() != nil {
+// 		return nil, err
+// 	}
+
+// 	return nil, nil
+// }
 
 // GetNextRunNumber retrieves the current run number from the SQL database,
 // returning -1 and an error if retrieval fails
 func GetNextRunNumber(androidID string) (int, error) {
+	// Retrieve database connection
 	db := getDatabase("data/test.sqlite")
-	if db == nil {
-		log.Error("Unable to retrieve next run number")
-		return -1, fmt.Errorf("unable to open database to retrieve next run number")
-	}
 
-	// Generate the SQL statement to retrieve the current max run number
-	row, err := db.Query("SELECT MAX(runNumber) FROM sensorData WHERE androidId = ?", androidID)
+	//Inserts the data in and prints out the run number
+	carID, err := androidToCar(db, androidID)
 	if err != nil {
-		log.Error("Error occurred during run number retrieval")
 		return -1, err
 	}
 
-	// Retrieve information based on query
-	var runNumber int
-	row.Scan(&runNumber)
+	log.Infof("Car ID from DB: %s", carID)
 
-	// Increment the previous highest run number by 1 to get the next run number to use
-	return runNumber + 1, nil
+	row := db.QueryRow("SELECT MAX(RunNumber)."+
+		" FROM SensorData."+
+		" WHERE Car id = ?", androidID)
+
+	var carRunNum int
+	if err = row.Scan(&carRunNum); err != nil {
+		return -1, err
+	}
+
+	log.Infof("Current Run Number: %d", carRunNum)
+
+	// Get the next car number
+	var nextRunNumber = carRunNum + 1
+
+	return nextRunNumber, nil
 }
