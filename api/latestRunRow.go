@@ -1,8 +1,9 @@
 package api
 
 import (
-	"github.com/HEEV/WebServer/sql"
 	"net/http"
+
+	"github.com/HEEV/WebServer/sql"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -20,11 +21,10 @@ func LatestRunHandler(r *http.Request) string {
 	}
 
 	//Do the sql query
-	row, err :=  db.Query("SELECT * FROM SensorData ORDER BY Id DESC LIMIT 1;")
-
+	row, err := db.Query("SELECT * FROM SensorData ORDER BY Id DESC LIMIT 1;")
 
 	//TODO: Fix from here on down
-	if(row == nil){
+	if row == nil {
 		log.Error("Unable to connect to database for CarNameHandler")
 		return ""
 	}
@@ -37,5 +37,4 @@ func LatestRunHandler(r *http.Request) string {
 	}
 
 	return carName
-
 }

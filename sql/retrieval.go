@@ -4,7 +4,8 @@ import (
 	"sync"
 
 	"database/sql"
-	//"github.com/mattn/go-sqlite3"
+
+	_ "github.com/mattn/go-sqlite3"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -99,9 +100,8 @@ func GetNextRunNumber(androidID string) (int, error) {
 
 	log.Infof("Car ID from DB: %s", carID)
 
-	row := db.QueryRow("SELECT MAX(RunNumber)."+
-		" FROM SensorData."+
-		" WHERE Car id = ?", androidID)
+	row := db.QueryRow(
+		"SELECT MAX(RunNumber) FROM SensorData WHERE carId = ?", androidID)
 
 	var carRunNum int
 	if err = row.Scan(&carRunNum); err != nil {

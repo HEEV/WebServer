@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"html/template"
 	"net/http"
 	"runtime"
@@ -98,7 +97,6 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, vals)
 }
 
-
 // graphHandler handles requests to the /graph page
 func graphHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
@@ -116,18 +114,6 @@ func graphHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Respond with the template filled with the values
 	t.Execute(w, vals)
-}
-
-func APIHandler(w http.ResponseWriter, r *http.Request) {
-	ErrorCheck(w, r, "APIHandler")
-}
-
-
-func ErrorCheck(w http.ResponseWriter, r *http.Request, method string) {
-	if r.URL.Path != "/" {
-		http.Error(w, "Not found for "+method, http.StatusNotFound)
-		return
-	}
 }
 
 // apiHandler provides access to data stored in the DB
@@ -169,7 +155,7 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 // loginHandler handles requests to the login page
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
-		http.Error(w, "Method not allowed " + method , http.StatusMethodNotAllowed)
+		http.Error(w, "Method not allowed "+r.Method, http.StatusMethodNotAllowed)
 		return
 	}
 

@@ -31,4 +31,5 @@ type LogData struct {
 	WindSpeed               float32 //`json:"windSpeed"`
 	SystemCurrent           float32 //`json:"systemCurrent"`
 	CoolantTemperature      float32 //`json:"coolantTemperature"`
+	CarId                   string
 }

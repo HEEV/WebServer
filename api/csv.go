@@ -11,61 +11,63 @@ import (
 // CSVHandler handles retrieval of data for /csv endpoint
 // Returns: A string of the data to return
 func CSVHandler(r *http.Request) string {
-	if r.Method == "POST"{
-		var runId = r.URL.Query()["runId"]
+	if r.Method != "POST" || r.URL.Query()["CarId"] == nil {
+		return ""
+	}
 
-		///Grab the database
-		db := sql.GetDatabase("data/test.sqlite")
+	runId := r.URL.Query()["runId"]
 
-		//Make sure there is no error when grabbing the data
-		if db == nil {
-			log.Error("Unable to connect to database for CSVHandler")
-			return ""
-		}
+	///Grab the database
+	db := sql.GetDatabase("data/test.sqlite")
 
-		//Do the sql query
-		rows, err :=  db.Query("SELECT * FROM SensorData WHERE RunNumber = ?;", runId)
+	//Make sure there is no error when grabbing the data
+	if db == nil {
+		log.Error("Unable to connect to database for CSVHandler")
+		return ""
+	}
 
-		if(err != nil){
-			log.Error("Unable to connect to database for CSVHandler")
-			return ""
-		}
+	//Do the sql query
+	rows, err := db.Query("SELECT * FROM SensorData WHERE RunNumber = ?;", runId)
 
-		//This is gotten from stack overflow
-		cols, err := rows.Columns()
-		if err != nil {
-			log.Error("Failed to get columns", err)
-			return ""
-		}
+	if err != nil {
+		log.Error("Unable to connect to database for CSVHandler")
+		return ""
+	}
 
-		rawResult := make([][]byte, len(cols))
-		runData := make([]interface{}, len(cols))
-		for i, _ := range rawResult {
-			runData[i] = &rawResult[i] // Put pointers to each string in the interface slice
-		}
-		//TODO: grab data from the row of run id and change it to cvs
-		var csv string = ""
-		for rows.Next(){
-			err = rows.Scan(&runData)
-			if err != nil{
-				log.Error("Failed to Scan")
-				return ""
-			}
-			for i := 0; i < (len(cols)); i++{
-				var temp string = string(rawResult[i])
-				csv += temp + ","
-			}
-			csv = "\n"
-		}
+	//This is gotten from stack overflow
+	cols, err := rows.Columns()
+	if err != nil {
+		log.Error("Failed to get columns", err)
+		return ""
+	}
 
-		//Use the data from sql query to send back carName as a string
+	rawResult := make([][]byte, len(cols))
+	runData := make([]interface{}, len(cols))
+	for i, raw := range rawResult {
+		runData[i] = raw // Put pointers to each string in the interface slice
+	}
+
+	//TODO: grab data from the row of run id and change it to cvs
+	csv := ""
+	for rows.Next() {
 		err = rows.Scan(&runData)
 		if err != nil {
+			log.Error("Failed to Scan")
 			return ""
 		}
-
-		//Create our csv formatted string runData is formatted like [col][row]
-		return csv
+		for i := 0; i < (len(cols)); i++ {
+			temp := string(rawResult[i])
+			csv += temp + ","
+		}
+		csv = "\n"
 	}
-	return ""
+
+	//Use the data from sql query to send back carName as a string
+	err = rows.Scan(&runData)
+	if err != nil {
+		return ""
+	}
+
+	//Create our csv formatted string runData is formatted like [col][row]
+	return csv
 }

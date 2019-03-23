@@ -89,6 +89,15 @@ func (c *Client) readPump() {
 		// Packet identification information, all packets must include these
 		var ident packets.Identification
 
+		// Check for quit message
+		if string(message) == "quit" {
+			// Client is quitting
+			log.Warnf("Client %s is disconnecting!", c.uid)
+
+			// Break the read loop
+			break
+		}
+
 		// Unmarshal the data into the identification packet
 		err = json.Unmarshal(message, &ident)
 		if err != nil {
@@ -99,18 +108,6 @@ func (c *Client) readPump() {
 
 			// Drop the error after logging and wait for next message
 			continue
-		}
-
-		// Generate the message's UUID
-		uid, err := uuid.NewV4()
-		if err != nil {
-			log.Error(err)
-			return
-		}
-
-		respIdent := packets.Identification{
-			AndroidID:   ident.AndroidID,
-			MessageType: "",
 		}
 
 		switch ident.MessageType {
@@ -126,11 +123,9 @@ func (c *Client) readPump() {
 			data := packets.NextRunNumberData{
 				RunNumber: nextRun,
 			}
-			response.Data = data
-			response.MessageType = "NextRunNumberResponse"
 
 			// Marshal response for client (marshal changes to bytes)
-			bytes, err := json.Marshal(response)
+			bytes, err := json.Marshal(data)
 			if err != nil {
 				log.Error("Unable to marshal GetNextRunNumber response")
 				log.Error(err)
@@ -138,7 +133,7 @@ func (c *Client) readPump() {
 
 			log.Infof(
 				"Sending %+v response to connection %s",
-				string(message),
+				string(bytes),
 				c.uid,
 			)
 
@@ -164,10 +159,7 @@ func (c *Client) readPump() {
 			}
 
 			// Store data to database
-			log.Infof(
-				"Updating database from client %s data",
-				c.ui
-			)
+			log.Infof("Updating database from client %s data", c.uid)
 
 			sql.LogToDatabase(logData)
 		}

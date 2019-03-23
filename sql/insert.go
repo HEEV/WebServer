@@ -16,13 +16,13 @@ func LogToDatabase(data packets.LogData) {
 
 	// Create the update SQL statement
 	statement, err := db.Prepare(
-		"INSERT INTO sensorData (" +
+		"INSERT INTO SensorData (" +
 			"runNumber, batteryVoltage, groundSpeed, intakeTemperature, " +
 			"lKillSwitch, rKillSwitch, mKillSwitch, longitude, latitude, " +
 			"logTime, lapNumber, secondaryBatteryVoltage, wheelSpeed, " +
-			"windSpeed, systemCurrent, coolantTemperature, carId" +
+			"windSpeed, systemCurrent, coolantTemperature, carId, androidId" +
 			")" +
-			"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?)",
+			"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 	)
 
 	if err != nil {
@@ -48,6 +48,7 @@ func LogToDatabase(data packets.LogData) {
 		data.WindSpeed,
 		data.SystemCurrent,
 		data.CoolantTemperature,
+		data.CarId,
 	)
 
 }
