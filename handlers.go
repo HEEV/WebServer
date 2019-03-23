@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
 	"runtime"
@@ -95,12 +96,27 @@ func graphHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func APIHandler(w http.ResponseWriter, r *http.Request) {
+	ErrorCheck(w, r, "APIHandler")
+}
+
+
+func GetCarName(w http.ResponseWriter, r *http.Request){
+	ErrorCheck(w, r, "APIHandler")
+	if r.Method == "POST" && r.URL.Query()["CarId"] != nil {
+		var CarId = r.URL.Query()["CarId"]
+		//function in model.php
+		var carName = GetCarName(CarId)
+		fmt.Println(carName);
+	}
+}
+
+func ErrorCheck(w http.ResponseWriter, r *http.Request, method string){
 	if r.URL.Path != "/" {
-		http.Error(w, "Not found", http.StatusNotFound)
+		http.Error(w, "Not found for " + method,   http.StatusNotFound)
 		return
 	}
 
 	if r.Method != "GET" {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		http.Error(w, "Method not allowed " + method , http.StatusMethodNotAllowed)
 	}
 }
