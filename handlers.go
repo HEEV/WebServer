@@ -147,6 +147,9 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 	case "/API/runIds":
 		resp, err = api.RunIdsHandler(r)
 		break
+	default:
+		w.WriteHeader(http.StatusNotFound)
+		return
 	}
 
 	if err != nil {
@@ -154,8 +157,14 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 		errCode := http.StatusInternalServerError
 
 		// Specifically invalid method
-		if err.Error() == "Method not allowed" {
+		switch err.Error() {
+		case "Method not allowed":
 			errCode = http.StatusMethodNotAllowed
+			break
+
+		case "Not found":
+			errCode = http.StatusNoContent
+			break
 		}
 
 		// Write HTTP status code

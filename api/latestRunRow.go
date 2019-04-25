@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/HEEV/WebServer/sql"
+	"github.com/HEEV/WebServer/datastore"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -12,8 +12,8 @@ import (
 // LatestRunHandler handles retrieval of data for /latestRun endpoint
 // Returns: A string of the data to return
 func LatestRunHandler(r *http.Request) string {
-	///Grab the database
-	db := sql.GetDatabase("data/test.sqlite")
+	// Grab the database
+	db := datastore.GetDatabase("data/test.sqlite")
 
 	//Make sure there is no error when grabbing the data
 	if db == nil {
@@ -35,7 +35,7 @@ func LatestRunHandler(r *http.Request) string {
 	dest := make([]interface{}, len(cols))
 	var runData string
 
-	for i, _ := range rawResult {
+	for i := range rawResult {
 		dest[i] = &rawResult[i] // Put pointers to each string in the interface slice
 	}
 

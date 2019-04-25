@@ -9,8 +9,8 @@ import (
 	"github.com/gorilla/websocket"
 	uuid "github.com/satori/go.uuid"
 
+	"github.com/HEEV/WebServer/datastore"
 	"github.com/HEEV/WebServer/packets"
-	"github.com/HEEV/WebServer/sql"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -114,7 +114,7 @@ func (c *Client) readPump() {
 		case "GetNextRunNumber":
 			// Identification/initial communication
 			// Create packet w/ run number value from server
-			nextRun, err := sql.GetNextRunNumber(ident.AndroidID)
+			nextRun, err := datastore.GetNextRunNumber(ident.AndroidID)
 			if err != nil {
 				log.Error("Unable to retrieve next run ID")
 				log.Error(err)
@@ -161,7 +161,7 @@ func (c *Client) readPump() {
 			// Store data to database
 			log.Infof("Updating database from client %s data", c.uid)
 
-			sql.LogToDatabase(logData)
+			datastore.LogToDatabase(logData)
 		}
 
 		// Number of receiving clients = Total # of clients - 1 for sender

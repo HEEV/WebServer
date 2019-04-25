@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/HEEV/WebServer/sql"
+	"github.com/HEEV/WebServer/datastore"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -27,7 +27,7 @@ func CSVHandler(r *http.Request) (string, int, error) {
 	}
 
 	///Grab the database
-	db := sql.GetDatabase("data/test.sqlite")
+	db := datastore.GetDatabase("data/test.sqlite")
 
 	//Make sure there is no error when grabbing the data
 	if db == nil {

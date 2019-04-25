@@ -1,10 +1,11 @@
 package api
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 
-	"github.com/HEEV/WebServer/sql"
+	"github.com/HEEV/WebServer/datastore"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -18,14 +19,14 @@ func CarNameHandler(r *http.Request) (string, error) {
 		return "", fmt.Errorf("Method not allowed")
 	}
 
-	carId, exists := r.URL.Query()["CarId"]
+	carId := r.URL.Query().Get("CarId")
 
-	if !exists {
+	if carId == "" {
 		return "", fmt.Errorf("CarId parameter not passed")
 	}
 
 	// Grab the database
-	db := sql.GetDatabase("data/test.sqlite")
+	db := datastore.GetDatabase("data/test.sqlite")
 
 	// Make sure there is no error when grabbing the data
 	if db == nil {
@@ -33,17 +34,17 @@ func CarNameHandler(r *http.Request) (string, error) {
 		log.Error(err)
 		return "", err
 	}
-	row := db.QueryRow("Select c.Name FROM Cars c WHERE c.ID = ?", carId)
 
-	if row == nil {
-		err := fmt.Errorf("Unable to query database for CarNameHandler")
-		log.Error(err)
-		return "", err
-	}
+	// Query the Cars table for the matching car ID
+	row := db.QueryRow("SELECT c.Name FROM Cars c WHERE c.ID = ?", carId)
 
 	// Use the data from sql query to send back carName as a string
 	var carName string
 	err := row.Scan(&carName)
+	if err == sql.ErrNoRows {
+		err := fmt.Errorf("Not found")
+		return "", err
+	}
 	if err != nil {
 		log.Error(err)
 		return "", fmt.Errorf("Error during DB row scanning")

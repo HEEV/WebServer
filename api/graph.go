@@ -3,7 +3,9 @@ package api
 import (
 	"fmt"
 	"net/http"
-	"github.com/HEEV/WebServer/sql"
+
+	"github.com/HEEV/WebServer/datastore"
+
 	log "github.com/sirupsen/logrus"
 )
 
@@ -26,7 +28,7 @@ func GraphHandler(r *http.Request) (string, error) {
 	}
 
 	///Grab the database
-	db := sql.GetDatabase("data/test.sqlite")
+	db := datastore.GetDatabase("data/test.sqlite")
 
 	//Make sure there is no error when grabbing the data
 	if db == nil {
@@ -48,7 +50,7 @@ func GraphHandler(r *http.Request) (string, error) {
 	cols, err := rows.Columns()
 	if err != nil {
 		log.Error("Failed to get columns", err)
-		return "",err
+		return "", err
 	}
 	//Use the data from sql query to send back carName as a string
 	rawResult := make([][]byte, len(cols))
@@ -72,7 +74,7 @@ func GraphHandler(r *http.Request) (string, error) {
 		runData += "\n"
 	}
 
-		if err != nil {
+	if err != nil {
 		httpErr := fmt.Errorf("Failed to scan row for CSVHandler")
 		log.Error(httpErr)
 		log.Error(err)
