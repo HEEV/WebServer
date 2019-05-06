@@ -9,55 +9,59 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+type RunRow struct {
+	AndroidID               string `db:"androidId"`
+	RunNumber               int    `db:"runNumber"`
+	BatteryVoltage          float32
+	GroundSpeed             float32
+	IntakeTemperature       float32
+	LKillSwitch             int
+	MKillSwitch             int
+	RKillSwitch             int
+	Longitude               float32
+	Latitude                float32
+	LogTime                 string
+	LapNumber               int
+	SecondaryBatteryVoltage float32
+	WheelRpm                float32
+	WindSpeed               float32
+	SystemCurrent           float32
+	CoolantTemperature      float32
+	CarId                   string
+}
+
+const latestRunNumQuery string = "SELECT * FROM SensorData ORDER BY id DESC LIMIT 1"
+
 // LatestRunHandler handles retrieval of data for /latestRun endpoint
 // Returns: A string of the data to return
-func LatestRunHandler(r *http.Request) string {
+func LatestRunHandler(r *http.Request) (string, error) {
+	// Validate the request was via GET method
+	_, err := ValidateMethod(r, "GET")
+	if err != nil {
+		log.Error(err)
+		return "", err
+	}
+
 	// Grab the database
 	db := datastore.GetDatabase("data/test.sqlite")
 
 	//Make sure there is no error when grabbing the data
 	if db == nil {
-		log.Error("Unable to connect to database for CarNameHandler")
-		return ""
+		log.Error(fmt.Errorf("Unable to connect to database for CarNameHandler"))
+		return "", fmt.Errorf(internalServerErrMsg)
 	}
 
-	//Do the sql query
-	rows, err := db.Query("SELECT * FROM SensorData ORDER BY Id DESC LIMIT 1;")
+	// Do the sql query
+	row := db.QueryRowx(latestRunNumQuery)
 
-	//TODO: Fix from here on down
-	cols, err := rows.Columns()
-	if err != nil {
-		log.Error("Failed to get columns", err)
-		return ""
-	}
-	//Use the data from sql query to send back carName as a string
-	rawResult := make([][]byte, len(cols))
-	dest := make([]interface{}, len(cols))
-	var runData string
-
-	for i := range rawResult {
-		dest[i] = &rawResult[i] // Put pointers to each string in the interface slice
+	if row == nil {
+		log.Error("Nil next row when querying LatestRunHandler")
+		return "", fmt.Errorf(internalServerErrMsg)
 	}
 
-	for rows.Next() {
-		err = rows.Scan(dest...)
-		if err != nil {
-			fmt.Println("Failed to scan row", err)
-			return ""
-		}
+	var runData RunRow
+	row.StructScan(&runData)
+	log.Infof("%+v", runData)
 
-		for raw := range rawResult {
-			runData += string(raw) + " "
-		}
-		runData += "\n"
-	}
-
-	if err != nil {
-		httpErr := fmt.Errorf("Failed to scan row for CSVHandler")
-		log.Error(httpErr)
-		log.Error(err)
-		return ""
-	}
-
-	return runData
+	return "", nil
 }

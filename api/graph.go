@@ -12,7 +12,6 @@ import (
 // GraphHandler handles retrieval of data for /graph endpoint
 // Returns: A string of the data to return
 func GraphHandler(r *http.Request) (string, error) {
-
 	// Validate the request was via POST method
 	_, err := ValidateMethod(r, "POST")
 	if err != nil {
@@ -57,7 +56,7 @@ func GraphHandler(r *http.Request) (string, error) {
 	dest := make([]interface{}, len(cols))
 	var runData string
 
-	for i, _ := range rawResult {
+	for i := range rawResult {
 		dest[i] = &rawResult[i] // Put pointers to each string in the interface slice
 	}
 

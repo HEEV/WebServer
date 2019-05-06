@@ -9,6 +9,21 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+const runIdsQuery string = `
+SELECT Cars.Name, a.LogTime, a.RunNumber 
+FROM Cars
+JOIN (
+    SELECT MIN(SensorData.CarId) as CarId,
+           MIN(SensorData.LogTime) as LogTime,
+           SensorData.RunNumber 
+    FROM SensorData 
+    GROUP BY SensorData.RunNumber
+) a 
+ON a.CarId = Cars.Id
+ORDER BY a.LogTime
+DESC
+`
+
 // RunIdsHandler handles retrieval of data for /runIds endpoint
 // Returns: A string of the data to return
 func RunIdsHandler(r *http.Request) (string, error) {
@@ -23,17 +38,12 @@ func RunIdsHandler(r *http.Request) (string, error) {
 
 	//Make sure there is no error when grabbing the data
 	if db == nil {
-		err := fmt.Errorf("Unable to connect to database for GraphHandler")
+		err := fmt.Errorf("Unable to connect to database for Run IDs")
 		log.Error(err)
 		return "", err
 	}
 
-	rows, err := db.Query("SELECT Cars.Name, a.LogTime, a.RunNumber " +
-		"FROM CarsJOIN (SELECT MIN(SensorData.CarId) as CarId, " +
-		"MIN(SensorData.LogTime) LogTime, SensorData.RunNumber" +
-		"FROM SensorData GROUP BY SensorData.RunNumber) a " +
-		"ON a.CarId = Cars.Id" +
-		"ORDER BY a.LogTime DESC;")
+	rows, err := db.Query(runIdsQuery)
 
 	if rows == nil {
 		httpErr := fmt.Errorf("Unable to connect to database for GraphHandler")

@@ -141,7 +141,7 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 		break
 
 	case "/API/latestRunRow":
-		resp = api.LatestRunHandler(r)
+		resp, err = api.LatestRunHandler(r)
 		break
 
 	case "/API/runIds":

@@ -5,6 +5,8 @@ import (
 	"net/http"
 )
 
+const internalServerErrMsg string = "Internal server error"
+
 // ValidateMethod validates the HTTP method from the request passed
 // Returns HTTP status code and error message
 func ValidateMethod(r *http.Request, method string) (int, error) {
