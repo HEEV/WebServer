@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -42,6 +43,8 @@ func LatestRunHandler(r *http.Request) (string, error) {
 		return "", err
 	}
 
+	log.Infof("Handling latest run request...")
+
 	// Grab the database
 	db := datastore.GetDatabase("data/test.sqlite")
 
@@ -59,9 +62,16 @@ func LatestRunHandler(r *http.Request) (string, error) {
 		return "", fmt.Errorf(internalServerErrMsg)
 	}
 
+	// Store data retrieved from DB in struct
 	var runData RunRow
 	row.StructScan(&runData)
-	log.Infof("%+v", runData)
 
-	return "", nil
+	// Marshall response data struct into a byte array
+	resultJSON, err := json.MarshalIndent(runData, "", "    ")
+	if err != nil {
+		log.Error("Failed to marshall latest run row response JSON")
+		return "", fmt.Errorf(internalServerErrMsg)
+	}
+
+	return string(resultJSON), nil
 }

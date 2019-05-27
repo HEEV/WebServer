@@ -1,5 +1,7 @@
 package packets
 
+import "fmt"
+
 // TabletInitial represents the initial communication with the server
 type TabletInitial struct {
 	Identification
@@ -15,21 +17,56 @@ type Identification struct {
 // LogData represents an information update from client
 type LogData struct {
 	Identification
-	RunNumber               int     //`json:"runNumber"`
-	BatteryVoltage          float32 //`json:"batteryVoltage"`
-	GroundSpeed             float32 //`json:"groundSpeed"`
-	IntakeTemperature       float32 //`json:"intakeTemperature"`
-	LKillSwitch             int     //`json:"lKillSwitch"`
-	MKillSwitch             int     //`json:"mKillSwitch"`
-	RKillSwitch             int     //`json:"rKillSwitch"`
-	Longitude               float32 //`json:"longitude"`
-	Latitude                float32 //`json:"latitude"`
-	LogTime                 string  //`json:"logTime"`
-	LapNumber               int     //`json:"lapNumber"`
-	SecondaryBatteryVoltage float32 //`json:"secondaryBatteryVoltage"`
-	WheelRpm                float32 //`json:"wheelRPM"`
-	WindSpeed               float32 //`json:"windSpeed"`
-	SystemCurrent           float32 //`json:"systemCurrent"`
-	CoolantTemperature      float32 //`json:"coolantTemperature"`
-	CarId                   string
+	SensorData
+}
+
+// SensorData represents raw sensor data
+type SensorData struct {
+	BatteryVoltage          float32 `json:"batteryVoltage" db:"batteryVoltage"`
+	SecondaryBatteryVoltage float32 `json:"secondaryBatteryVoltage" db:"secondaryBatteryVoltage"`
+	CarId                   string  `json:"carId" db:"carId"`
+	CoolantTemperature      float32 `json:"coolantTemperature" db:"coolantTemperature"`
+	GroundSpeed             float32 `json:"groundSpeed" db:"groundSpeed"`
+	IntakeTemperature       float32 `json:"intakeTemperature" db:"intakeTemperature"`
+	Latitude                float32 `json:"latitude" db:"latitude"`
+	Longitude               float32 `json:"longitude" db:"longitude"`
+	LapNumber               int     `json:"lapNumber" db:"lapNumber"`
+	LogTime                 string  `json:"logTime" db:"logTime"`
+	LKillSwitch             int     `json:"lKillSwitch" db:"lKillSwitch"`
+	MKillSwitch             int     `json:"mKillSwitch" db:"mKillSwitch"`
+	RKillSwitch             int     `json:"rKillSwitch" db:"rKillSwitch"`
+	RunNumber               int     `json:"runNumber" db:"runNumber"`
+	SystemCurrent           float32 `json:"systemCurrent" db:"systemCurrent"`
+	WheelRpm                float32 `json:"wheelRPM" db:"wheelRpm"`
+	WindSpeed               float32 `json:"windSpeed" db:"windSpeed"`
+}
+
+// DBSensorData represents the data from the SensorData table in the DB
+type DBSensorData struct {
+	SensorData
+	AndroidID string `json:"androidId" db:"androidId"`
+	ID        int    `json:"-" db:"id"`
+}
+
+func (s DBSensorData) ToCSVString() []string {
+	return []string{
+		s.AndroidID,
+		fmt.Sprintf("%f", s.BatteryVoltage),
+		fmt.Sprintf("%f", s.SecondaryBatteryVoltage),
+		fmt.Sprintf("%s", s.CarId),
+		fmt.Sprintf("%f", s.CoolantTemperature),
+		fmt.Sprintf("%f", s.GroundSpeed),
+		fmt.Sprintf("%f", s.IntakeTemperature),
+		fmt.Sprintf("%f", s.Latitude),
+		fmt.Sprintf("%f", s.Longitude),
+		fmt.Sprintf("%d", s.LapNumber),
+		fmt.Sprintf("%s", s.LogTime),
+		fmt.Sprintf("%d", s.LKillSwitch),
+		fmt.Sprintf("%d", s.RKillSwitch),
+		fmt.Sprintf("%d", s.MKillSwitch),
+		fmt.Sprintf("%d", s.RunNumber),
+		fmt.Sprintf("%f", s.SystemCurrent),
+		fmt.Sprintf("%f", s.WheelRpm),
+		fmt.Sprintf("%f", s.WindSpeed),
+	}
 }

@@ -34,6 +34,8 @@ func RunIdsHandler(r *http.Request) (string, error) {
 		return "", err
 	}
 
+	log.Infof("Handling Run IDs request...")
+
 	db := datastore.GetDatabase("data/test.sqlite")
 
 	//Make sure there is no error when grabbing the data

@@ -19,6 +19,8 @@ func GraphHandler(r *http.Request) (string, error) {
 		return "", err
 	}
 
+	log.Infof("Handling Graph request...")
+
 	// Attempt to get runId query argument
 	runId, err := TryGetQueryArg(r, "runId")
 	if err != nil {
@@ -26,59 +28,60 @@ func GraphHandler(r *http.Request) (string, error) {
 		return "", err
 	}
 
-	///Grab the database
+	// Grab the database
 	db := datastore.GetDatabase("data/test.sqlite")
 
-	//Make sure there is no error when grabbing the data
+	// Make sure there is no error when grabbing the data
 	if db == nil {
-		err := fmt.Errorf("Unable to connect to database for GraphHandler")
-		log.Error(err)
-		return "", err
+		log.Error("Unable to connect to database for GraphHandler")
+		return "", fmt.Errorf(internalServerErrMsg)
 	}
 
-	//Do the sql query
+	// Execute SQL query to retrieve sensor data for provided run
 	rows, err := db.Query("SELECT * FROM SensorData WHERE RunNumber = ?;", runId)
-
 	if rows == nil {
-		httpErr := fmt.Errorf("Unable to connect to database for GraphHandler")
-		log.Error(httpErr)
+		log.Error("Unable to retrieve sensor data for GraphHandler")
 		log.Error(err)
-		return "", httpErr
+		return "", fmt.Errorf(internalServerErrMsg)
 	}
 
-	cols, err := rows.Columns()
-	if err != nil {
-		log.Error("Failed to get columns", err)
-		return "", err
-	}
-	//Use the data from sql query to send back carName as a string
-	rawResult := make([][]byte, len(cols))
-	dest := make([]interface{}, len(cols))
-	var runData string
+	// // TODO: Make this actually return something...
 
-	for i := range rawResult {
-		dest[i] = &rawResult[i] // Put pointers to each string in the interface slice
-	}
+	// cols, err := rows.Columns()
+	// if err != nil {
+	// 	log.Error("Failed to get columns", err)
+	// 	return "", err
+	// }
 
-	for rows.Next() {
-		err = rows.Scan(dest...)
-		if err != nil {
-			fmt.Println("Failed to scan row", err)
-			return "", err
-		}
+	// // Use the data from sql query to send back carName as a string
+	// rawResult := make([][]byte, len(cols))
+	// dest := make([]interface{}, len(cols))
+	// var runData string
 
-		for raw := range rawResult {
-			runData += string(raw) + " "
-		}
-		runData += "\n"
-	}
+	// for i := range rawResult {
+	// 	dest[i] = &rawResult[i] // Put pointers to each string in the interface slice
+	// }
 
-	if err != nil {
-		httpErr := fmt.Errorf("Failed to scan row for CSVHandler")
-		log.Error(httpErr)
-		log.Error(err)
-		return "", httpErr
-	}
+	// for rows.Next() {
+	// 	err = rows.Scan(dest...)
+	// 	if err != nil {
+	// 		fmt.Println("Failed to scan row", err)
+	// 		return "", err
+	// 	}
 
-	return runData, nil
+	// 	for raw := range rawResult {
+	// 		runData += string(raw) + " "
+	// 	}
+	// 	runData += "\n"
+	// }
+
+	// if err != nil {
+	// 	httpErr := fmt.Errorf("Failed to scan row for CSVHandler")
+	// 	log.Error(httpErr)
+	// 	log.Error(err)
+	// 	return "", httpErr
+	// }
+
+	// return runData, nil
+	return "", nil
 }

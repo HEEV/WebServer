@@ -19,6 +19,8 @@ func CarNameHandler(r *http.Request) (string, error) {
 		return "", fmt.Errorf("Method not allowed")
 	}
 
+	log.Infof("Handling car name request...")
+
 	carId := r.URL.Query().Get("CarId")
 
 	if carId == "" {

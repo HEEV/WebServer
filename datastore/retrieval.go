@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	// Import sqlite3 library for use by database/sql
+	// sqlite3 library for use by database/sql
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 
