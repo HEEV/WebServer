@@ -1,10 +1,12 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
 	"github.com/HEEV/WebServer/datastore"
+	"github.com/HEEV/WebServer/packets"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -38,50 +40,38 @@ func GraphHandler(r *http.Request) (string, error) {
 	}
 
 	// Execute SQL query to retrieve sensor data for provided run
-	rows, err := db.Query("SELECT * FROM SensorData WHERE RunNumber = ?;", runId)
+	rows, err := db.Queryx("SELECT * FROM SensorData WHERE RunNumber = ?;", runId)
 	if rows == nil {
 		log.Error("Unable to retrieve sensor data for GraphHandler")
 		log.Error(err)
 		return "", fmt.Errorf(internalServerErrMsg)
 	}
 
-	// // TODO: Make this actually return something...
+	var curRow packets.DBSensorData
 
-	// cols, err := rows.Columns()
-	// if err != nil {
-	// 	log.Error("Failed to get columns", err)
-	// 	return "", err
-	// }
+	dbRows := make([]packets.DBSensorData, 0)
+	for rows.Next() {
+		if err := rows.StructScan(&curRow); err != nil {
+			log.Error(err)
+			return "", fmt.Errorf(internalServerErrMsg)
+		}
 
-	// // Use the data from sql query to send back carName as a string
-	// rawResult := make([][]byte, len(cols))
-	// dest := make([]interface{}, len(cols))
-	// var runData string
+		dbRows = append(dbRows, curRow)
+	}
 
-	// for i := range rawResult {
-	// 	dest[i] = &rawResult[i] // Put pointers to each string in the interface slice
-	// }
+	// Should only ever have 1 row returned, warn if otherwise
+	if len(dbRows) > 1 {
+		log.Warn("Multiple records retrieved from table SensorData for run number", runId)
+	}
 
-	// for rows.Next() {
-	// 	err = rows.Scan(dest...)
-	// 	if err != nil {
-	// 		fmt.Println("Failed to scan row", err)
-	// 		return "", err
-	// 	}
+	// Marshall structs to JSON
+	resp, err := json.MarshalIndent(dbRows, "", "    ")
 
-	// 	for raw := range rawResult {
-	// 		runData += string(raw) + " "
-	// 	}
-	// 	runData += "\n"
-	// }
+	if err != nil {
+		log.Error("Failed to marshal JSON result")
+		log.Error(err)
+		return "", fmt.Errorf(internalServerErrMsg)
+	}
 
-	// if err != nil {
-	// 	httpErr := fmt.Errorf("Failed to scan row for CSVHandler")
-	// 	log.Error(httpErr)
-	// 	log.Error(err)
-	// 	return "", httpErr
-	// }
-
-	// return runData, nil
-	return "", nil
+	return string(resp), nil
 }

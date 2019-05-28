@@ -67,28 +67,27 @@ func CSVHandler(r *http.Request) (string, int, error) {
 	// Retrieve data related to specific run number. Should only be one run
 	rows, err := db.Queryx(query, runId)
 	if err != nil {
-		err := fmt.Errorf("Unable to retrieve row for CSVHandler")
+		log.Error("Unable to retrieve sensor data for CSVHandler")
 		log.Error(err)
-		return "", http.StatusInternalServerError, err
+		return "", http.StatusInternalServerError, fmt.Errorf(internalServerErrMsg)
 	}
 
-	// Data packet that will be returned
-	var row packets.DBSensorData
+	var curRow packets.DBSensorData
 
 	// Attempt to fill initial record with data
-	dbRows := make([]packets.DBSensorData, 0)
+	dbRows := make([]packets.DBSensorData, 1)
 	for rows.Next() {
-		if err := rows.StructScan(&row); err != nil {
+		if err := rows.StructScan(&curRow); err != nil {
 			log.Error(err)
 			return "", http.StatusInternalServerError, fmt.Errorf(internalServerErrMsg)
 		}
 
-		dbRows = append(dbRows, row)
+		dbRows = append(dbRows, curRow)
 	}
 
 	// Should only ever have 1 row returned, warn if otherwise
 	if len(dbRows) > 1 {
-		log.Warn("Multiple rows retrieved from table SensorData for run number!", runId)
+		log.Warn("Multiple records retrieved from table SensorData for run number", runId)
 	}
 
 	// Convert rows into CSV format

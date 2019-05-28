@@ -144,9 +144,12 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 		resp, err = api.LatestRunHandler(r)
 		break
 
-	case "/API/runIds":
-		resp, err = api.RunIdsHandler(r)
-		break
+	// NOTE: This endpoint is disabled until more clarification is gained on
+	// how it is supposed to operate
+	// case "/API/runIds":
+	// 	resp, err = api.RunIdsHandler(r)
+	// 	break
+
 	default:
 		w.WriteHeader(http.StatusNotFound)
 		return

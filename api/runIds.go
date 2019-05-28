@@ -9,6 +9,9 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// NOTE: This endpoint is disabled until more clarification is gained on
+// how it is supposed to operate
+
 const runIdsQuery string = `
 SELECT Cars.Name, a.LogTime, a.RunNumber 
 FROM Cars
@@ -27,7 +30,7 @@ DESC
 // RunIdsHandler handles retrieval of data for /runIds endpoint
 // Returns: A string of the data to return
 func RunIdsHandler(r *http.Request) (string, error) {
-	// Validate the request was via POST method
+	// Validate the request was via GET method
 	_, err := ValidateMethod(r, "GET")
 	if err != nil {
 		log.Error(err)

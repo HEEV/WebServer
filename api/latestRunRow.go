@@ -6,30 +6,10 @@ import (
 	"net/http"
 
 	"github.com/HEEV/WebServer/datastore"
+	"github.com/HEEV/WebServer/packets"
 
 	log "github.com/sirupsen/logrus"
 )
-
-type RunRow struct {
-	AndroidID               string `db:"androidId"`
-	RunNumber               int    `db:"runNumber"`
-	BatteryVoltage          float32
-	GroundSpeed             float32
-	IntakeTemperature       float32
-	LKillSwitch             int
-	MKillSwitch             int
-	RKillSwitch             int
-	Longitude               float32
-	Latitude                float32
-	LogTime                 string
-	LapNumber               int
-	SecondaryBatteryVoltage float32
-	WheelRpm                float32
-	WindSpeed               float32
-	SystemCurrent           float32
-	CoolantTemperature      float32
-	CarId                   string
-}
 
 const latestRunNumQuery string = "SELECT * FROM SensorData ORDER BY id DESC LIMIT 1"
 
@@ -63,7 +43,7 @@ func LatestRunHandler(r *http.Request) (string, error) {
 	}
 
 	// Store data retrieved from DB in struct
-	var runData RunRow
+	var runData packets.DBSensorData
 	row.StructScan(&runData)
 
 	// Marshall response data struct into a byte array
